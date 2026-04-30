@@ -1,0 +1,27 @@
+.login-wrap {
+  background: radial-gradient(ellipse at top, #1a1d27 0%, #0f1117 70%);
+}
+
+.icon-wrap {
+  width: 56px; height: 56px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.input-group-text {
+  border-color: var(--border) !important;
+}
+
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  padding: 10px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #5254cc;
+  border-color: #5254cc;
+}

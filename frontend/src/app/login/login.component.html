@@ -1,0 +1,56 @@
+<div class="login-wrap d-flex align-items-center justify-content-center min-vh-100">
+  <div class="login-card card p-4 shadow-lg" style="width:380px">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <div class="icon-wrap mx-auto mb-3">
+        <i class="bi bi-hdd-network-fill fs-2 text-primary"></i>
+      </div>
+      <h4 class="fw-bold mb-0">DHCP Server Admin</h4>
+      <small class="text-muted">Sign in to manage your DHCP server</small>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-danger py-2 mb-3 text-center small">
+      <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-secondary">
+            <i class="bi bi-person text-muted"></i>
+          </span>
+          <input formControlName="username" type="text"
+                 class="form-control" placeholder="admin" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-secondary">
+            <i class="bi bi-lock text-muted"></i>
+          </span>
+          <input formControlName="password" [type]="showPw ? 'text' : 'password'"
+                 class="form-control" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="input-group-text bg-dark border-secondary"
+                  (click)="showPw = !showPw" tabindex="-1">
+            <i class="bi" [class.bi-eye]="!showPw" [class.bi-eye-slash]="showPw"
+               style="color:var(--muted)"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100"
+              [disabled]="form.invalid || loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!loading" class="bi bi-box-arrow-in-right me-2"></i>
+        {{ loading ? 'Signing in…' : 'Sign In' }}
+      </button>
+    </form>
+
+  </div>
+</div>

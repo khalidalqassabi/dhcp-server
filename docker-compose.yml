@@ -1,0 +1,37 @@
+services:
+
+  dhcp-backend:
+    build: ./backend
+    container_name: dhcp-backend
+    restart: unless-stopped
+    # network_mode: host  ← فعّل هذا على Linux فقط للـ DHCP الفعلي
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - SERVER_IP=192.168.1.1
+      - SUBNET_MASK=255.255.255.0
+      - ROUTER=192.168.1.1
+      - DNS=8.8.8.8,8.8.4.4
+      - POOL_START=192.168.1.100
+      - POOL_END=192.168.1.200
+      - LEASE_TIME=86400
+      - ADMIN_PASSWORD=admin123
+      - JWT_SECRET=change-this-secret-to-something-long
+    networks:
+      - dhcp-net
+
+  dhcp-frontend:
+    build: ./frontend
+    container_name: dhcp-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - dhcp-backend
+    networks:
+      - dhcp-net
+
+networks:
+  dhcp-net:
+    driver: bridge

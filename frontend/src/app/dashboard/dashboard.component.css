@@ -1,0 +1,20 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+th {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-top: none !important;
+  padding: 10px 12px !important;
+}
+
+td {
+  padding: 10px 12px !important;
+  vertical-align: middle;
+}
