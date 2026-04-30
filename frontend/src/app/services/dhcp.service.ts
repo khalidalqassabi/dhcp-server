@@ -63,9 +63,12 @@ export class DhcpService {
   }
 
   detectConflicts() {
-    return this.http.post<{ hasConflict: boolean; servers: { ip: string; from: string }[] }>(
-      `${environment.apiUrl}/dhcp/detect`, {}
-    );
+    return this.http.post<{
+      hasConflict: boolean;
+      servers: { ip: string; from: string }[];
+      method:  string;
+      warning?: string;
+    }>(`${environment.apiUrl}/dhcp/detect`, {});
   }
 
   updateConfig(config: Partial<DHCPConfig>) {

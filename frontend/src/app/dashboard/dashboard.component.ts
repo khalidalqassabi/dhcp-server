@@ -23,7 +23,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   configLoading   = false;
   configSaved     = false;
 
-  conflictResult: { hasConflict: boolean; servers: { ip: string; from: string }[] } | null = null;
+  conflictResult: {
+    hasConflict: boolean;
+    servers: { ip: string; from: string }[];
+    method:  string;
+    warning?: string;
+  } | null = null;
 
   configForm = this.fb.group({
     serverIp:   ['', Validators.required],

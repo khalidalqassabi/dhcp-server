@@ -74,10 +74,15 @@
           </p>
 
           <div *ngIf="conflictResult" class="mb-3">
-            <div *ngIf="!conflictResult.hasConflict" class="conflict-ok small">
-              <i class="bi bi-check-circle-fill me-2"></i>
-              No other DHCP servers detected — safe to run.
+
+            <!-- Warning: scan was incomplete -->
+            <div *ngIf="conflictResult.warning" class="mb-2"
+                 style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;color:#fcd34d;font-size:.8rem">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <strong>Scan incomplete:</strong> {{ conflictResult.warning }}
             </div>
+
+            <!-- Conflict found -->
             <div *ngIf="conflictResult.hasConflict" class="conflict-alert small">
               <i class="bi bi-exclamation-triangle-fill me-2"></i>
               <strong>Conflict detected!</strong> Found {{ conflictResult.servers.length }} other server(s):
@@ -85,6 +90,19 @@
                 <li *ngFor="let s of conflictResult.servers">{{ s.ip }} (from {{ s.from }})</li>
               </ul>
             </div>
+
+            <!-- No conflict AND no warning -->
+            <div *ngIf="!conflictResult.hasConflict && !conflictResult.warning" class="conflict-ok small">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              No other DHCP servers detected — safe to run.
+            </div>
+
+            <!-- Scan method used -->
+            <div *ngIf="conflictResult.method && conflictResult.method !== 'none'"
+                 class="mt-2" style="color:var(--muted);font-size:.75rem">
+              <i class="bi bi-info-circle me-1"></i>Method: {{ conflictResult.method }}
+            </div>
+
           </div>
 
           <div class="d-grid mt-auto">
