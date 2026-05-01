@@ -2,6 +2,12 @@ import { Component }      from '@angular/core';
 import { FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService }    from '../services/auth.service';
 
+function passwordsMatch(group: AbstractControl): ValidationErrors | null {
+  const np = group.get('newPassword')?.value;
+  const cp = group.get('confirmPassword')?.value;
+  return np && cp && np !== cp ? { mismatch: true } : null;
+}
+
 @Component({
   selector:    'app-settings',
   templateUrl: './settings.component.html',
@@ -18,16 +24,10 @@ export class SettingsComponent {
       newPassword:     ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
     },
-    { validators: this.passwordsMatch }
+    { validators: passwordsMatch }
   );
 
   constructor(private fb: FormBuilder, public auth: AuthService) {}
-
-  private passwordsMatch(group: AbstractControl): ValidationErrors | null {
-    const np = group.get('newPassword')?.value;
-    const cp = group.get('confirmPassword')?.value;
-    return np && cp && np !== cp ? { mismatch: true } : null;
-  }
 
   passwordStrength(pw: string): 'weak' | 'fair' | 'strong' {
     if (!pw || pw.length < 8) return 'weak';

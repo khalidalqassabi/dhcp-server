@@ -69,7 +69,7 @@
                  class="field-input"
                  autocomplete="new-password"
                  placeholder="Repeat new password">
-          <div *ngIf="form.hasError('mismatch') && form.get('confirmPassword')?.dirty"
+          <div *ngIf="form.hasError('mismatch') && (form.get('confirmPassword')?.dirty || form.get('newPassword')?.dirty)"
                class="field-error">
             Passwords do not match
           </div>

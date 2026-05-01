@@ -1,3 +1,41 @@
+/* ── Topbar ────────────────────────────────────────────────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,5,4,0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-hi);
+  padding: 0 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topbar-left  { display: flex; align-items: center; gap: 14px; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+
+.topbar-logo {
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--amber);
+  text-shadow: 0 0 12px var(--amber-glow);
+}
+
+.topbar-logo .logo-bracket { color: var(--border-hi); }
+
+.topbar-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--text-bright);
+}
+
+.topbar-sep { color: var(--border-hi); }
+
+/* ─────────────────────────────────────────────────────────── */
 .settings-wrap {
   display: flex;
   justify-content: center;
