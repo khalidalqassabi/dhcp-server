@@ -237,33 +237,150 @@
     </div>
   </div>
 
+  <!-- ── Full width: Device Analytics ──────────────────────────────── -->
+  <div class="panel area-charts">
+    <div class="panel-head">
+      <span><i class="bi bi-bar-chart-line panel-head-icon"></i>DEVICE ANALYTICS</span>
+      <span class="badge-count">{{ leases.length }} devices</span>
+    </div>
+
+    <div class="chart-halves">
+
+      <!-- Donut: by manufacturer -->
+      <div class="chart-half" style="border-right:1px solid var(--border)">
+        <div class="chart-half-title">BY MANUFACTURER</div>
+
+        <ng-container *ngIf="leases.length; else noDataDonut">
+          <div class="donut-wrap">
+            <svg class="donut-svg" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="56" fill="none"
+                      stroke="var(--border)" stroke-width="28"/>
+              <g transform="rotate(-90 80 80)">
+                <circle *ngFor="let seg of manufacturerData; trackBy: trackByLabel"
+                        cx="80" cy="80" r="56" fill="none"
+                        [attr.stroke]="seg.color"
+                        stroke-width="28"
+                        [attr.stroke-dasharray]="seg.dasharray"
+                        [attr.stroke-dashoffset]="seg.dashoffset"/>
+              </g>
+              <text x="80" y="76" text-anchor="middle" class="donut-center-num">{{ leases.length }}</text>
+              <text x="80" y="92" text-anchor="middle" class="donut-center-label">DEVICES</text>
+            </svg>
+
+            <div class="donut-legend">
+              <div *ngFor="let seg of manufacturerData; trackBy: trackByLabel" class="legend-item">
+                <span class="legend-dot" [style.background]="seg.color"></span>
+                <span class="legend-name">{{ seg.label }}</span>
+                <span class="legend-count">{{ seg.count }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noDataDonut>
+          <div class="chart-no-data">— NO DATA —</div>
+        </ng-template>
+      </div>
+
+      <!-- Bars: by device type -->
+      <div class="chart-half">
+        <div class="chart-half-title">BY DEVICE TYPE</div>
+
+        <ng-container *ngIf="leases.length; else noDataBars">
+          <div class="bar-chart">
+            <div *ngFor="let item of deviceTypeData; trackBy: trackByLabel" class="bar-row">
+              <div class="bar-label">
+                <i [class]="'bi ' + item.icon" [style.color]="item.color"></i>
+                {{ item.label }}
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill"
+                     [style.width.%]="item.pct"
+                     [style.background]="item.color"
+                     [style.box-shadow]="'0 0 6px ' + item.color + '60'">
+                </div>
+              </div>
+              <div class="bar-pct" [style.color]="item.color">
+                {{ item.pct | number:'1.0-0' }}%
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noDataBars>
+          <div class="chart-no-data">— NO DATA —</div>
+        </ng-template>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ── Full width: Active Leases ──────────────────────────────────── -->
   <div class="panel area-leases">
     <div class="panel-head">
       <span><i class="bi bi-hdd-network panel-head-icon"></i>ACTIVE LEASES</span>
       <span class="badge-count">{{ leases.length }}</span>
     </div>
+    <!-- Toolbar: filter tabs + search -->
+    <div class="leases-toolbar">
+      <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'ALL'"
+                (click)="activeTypeFilter = 'ALL'">ALL</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'Mobile'"
+                (click)="activeTypeFilter = 'Mobile'">MOBILE</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'Desktop'"
+                (click)="activeTypeFilter = 'Desktop'">DESKTOP</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'Network'"
+                (click)="activeTypeFilter = 'Network'">NETWORK</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'IoT'"
+                (click)="activeTypeFilter = 'IoT'">IOT</button>
+      </div>
+      <input class="field-input lease-search"
+             [value]="leaseSearch"
+             (input)="leaseSearch = $any($event.target).value"
+             placeholder="SEARCH IP / MAC / HOST…">
+    </div>
+
     <div style="overflow-x:auto">
       <table class="data-table">
         <thead>
           <tr>
+            <th style="width:36px"></th>
             <th>IP Address</th>
             <th>MAC Address</th>
             <th>Manufacturer</th>
             <th>Hostname</th>
             <th>Assigned</th>
             <th>Expires</th>
+            <th>Health</th>
             <th style="width:56px"></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let lease of leases">
+          <tr *ngFor="let lease of filteredLeases">
+            <td class="val-device-icon">
+              <i [class]="'bi ' + typeIconFor(lease.mac, lease.hostname)"
+                 [style.color]="typeColorFor(lease.mac, lease.hostname)"></i>
+            </td>
             <td class="val-ip">{{ lease.ip }}</td>
             <td class="val-mac">{{ lease.mac }}</td>
-            <td class="val-vendor">{{ vendorFor(lease.mac) }}</td>
+            <td>
+              <span [class]="'vendor-badge vendor-' + vendorColorKey(lease.mac)">
+                {{ vendorFor(lease.mac) }}
+              </span>
+            </td>
             <td>{{ lease.hostname || '—' }}</td>
             <td style="color:var(--text-dim);font-size:0.72rem">{{ formatTime(lease.assignedAt) }}</td>
             <td style="color:var(--text-dim);font-size:0.72rem">{{ formatExpiry(lease.expiry) }}</td>
+            <td>
+              <div class="health-bar-track"
+                   [title]="(leaseHealthPct(lease) | number:'1.0-0') + '% remaining'">
+                <div class="health-bar-fill"
+                     [style.width.%]="leaseHealthPct(lease)"
+                     [style.background]="leaseHealthColor(leaseHealthPct(lease))">
+                </div>
+              </div>
+            </td>
             <td>
               <button class="pbtn pbtn-icon"
                       (click)="releaseLease(lease.mac)"
@@ -272,9 +389,10 @@
               </button>
             </td>
           </tr>
-          <tr *ngIf="!leases.length" class="empty-row">
-            <td colspan="7">
-              <i class="bi bi-inbox" style="margin-right:8px"></i>NO ACTIVE LEASES
+          <tr *ngIf="!filteredLeases.length" class="empty-row">
+            <td colspan="9">
+              <i class="bi bi-inbox" style="margin-right:8px"></i>
+              {{ leases.length ? 'NO MATCHING LEASES' : 'NO ACTIVE LEASES' }}
             </td>
           </tr>
         </tbody>
