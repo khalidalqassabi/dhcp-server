@@ -1,0 +1,54 @@
+.settings-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
+  min-height: calc(100vh - 48px);
+}
+
+.settings-panel {
+  width: 100%;
+  max-width: 480px;
+}
+
+/* ── Strength bar ──────────────────────────────────────────── */
+.strength-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.strength-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+}
+
+.strength-fill {
+  height: 100%;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-weak   { width: 33%;  background: var(--red);   box-shadow: 0 0 6px rgba(232,64,64,0.5); }
+.strength-fair   { width: 66%;  background: var(--amber); box-shadow: 0 0 6px rgba(221,184,58,0.5); }
+.strength-strong { width: 100%; background: var(--green); box-shadow: 0 0 6px rgba(61,232,154,0.5); }
+
+.strength-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  flex-shrink: 0;
+  min-width: 44px;
+}
+
+.strength-text-weak   { color: var(--red); }
+.strength-text-fair   { color: var(--amber); }
+.strength-text-strong { color: var(--green); }
+
+/* ── Validation error ──────────────────────────────────────── */
+.field-error {
+  font-size: 0.72rem;
+  color: var(--red);
+  margin-top: 5px;
+  letter-spacing: 0.06em;
+}
