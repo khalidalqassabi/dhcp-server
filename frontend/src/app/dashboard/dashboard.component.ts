@@ -23,6 +23,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   configLoading   = false;
   configSaved     = false;
 
+
   conflictResult: {
     hasConflict: boolean;
     servers: { ip: string; from: string }[];
@@ -74,6 +75,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       poolEnd:    s.config.poolEnd,
       leaseTime:  s.config.leaseTime
     });
+  }
+
+  vendorFor(mac: string): string {
+    return this.dhcp.getMacVendor(mac);
   }
 
   private onWsMessage(msg: WsMessage) {

@@ -1,265 +1,284 @@
-<!-- Navbar -->
-<nav class="navbar px-4 py-3" style="background:var(--surface);border-bottom:1px solid var(--border)">
-  <span class="navbar-brand fw-bold mb-0 text-white">
-    <i class="bi bi-hdd-network-fill text-primary me-2"></i>DHCP Server Admin
-  </span>
-  <button class="btn btn-sm btn-outline-secondary" (click)="auth.logout()">
-    <i class="bi bi-box-arrow-right me-1"></i>Logout
-  </button>
-</nav>
+<!-- ── Top bar ────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">
+      <span class="logo-bracket">[</span>⬡<span class="logo-bracket">]</span>
+    </span>
+    <span class="topbar-title">DHCP CONTROL</span>
+    <span class="topbar-sep">·</span>
+    <span [class]="'status-pill ' + (running ? 'running' : 'stopped')">
+      <span class="status-dot"></span>
+      {{ running ? 'ONLINE' : 'OFFLINE' }}
+    </span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-meta">UDP:67 · HTTP:3000</span>
+    <button class="pbtn pbtn-ghost pbtn-sm" (click)="auth.logout()">
+      <i class="bi bi-box-arrow-right"></i> LOGOUT
+    </button>
+  </div>
+</header>
 
-<div class="container-fluid p-4">
+<!-- ── Main grid ─────────────────────────────────────────────────────── -->
+<div class="dash-grid">
 
-  <!-- Row 1: Status + Controls + Conflict Detection -->
-  <div class="row g-3 mb-3">
+  <!-- ── Col A: Server Control ─────────────────────────────────────── -->
+  <div class="panel area-control">
+    <div class="panel-head">
+      <span><i class="bi bi-power panel-head-icon"></i>SERVER CONTROL</span>
+      <span [class]="'status-pill ' + (running ? 'running' : 'stopped')">
+        <span class="status-dot"></span>{{ running ? 'RUNNING' : 'STOPPED' }}
+      </span>
+    </div>
+    <div class="panel-body">
 
-    <!-- Server Status Card -->
-    <div class="col-lg-4">
-      <div class="card h-100">
-        <div class="card-header d-flex align-items-center justify-content-between">
-          <span class="fw-semibold"><i class="bi bi-activity me-2 text-primary"></i>Server Status</span>
-          <span [class]="running ? 'badge-running' : 'badge-stopped'">
-            <span class="pulse"></span>{{ running ? 'Running' : 'Stopped' }}
+      <!-- Stat row -->
+      <div class="stats-row">
+        <div class="stat-block">
+          <div class="stat-value">{{ stats.total }}</div>
+          <div class="stat-label">TOTAL IPS</div>
+          <div class="pool-bar">
+            <div class="pool-bar-fill" [style.width.%]="stats.total ? 100 : 0"></div>
+          </div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value v-red">{{ stats.used }}</div>
+          <div class="stat-label">IN USE</div>
+          <div class="pool-bar">
+            <div class="pool-bar-fill"
+                 style="background:var(--red);box-shadow:0 0 6px rgba(232,64,64,0.5)"
+                 [style.width.%]="stats.total ? (stats.used / stats.total * 100) : 0"></div>
+          </div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value v-green">{{ stats.available }}</div>
+          <div class="stat-label">AVAIL</div>
+          <div class="pool-bar">
+            <div class="pool-bar-fill"
+                 style="background:var(--green);box-shadow:0 0 6px rgba(61,232,154,0.5)"
+                 [style.width.%]="stats.total ? (stats.available / stats.total * 100) : 0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pool utilization bar -->
+      <div class="util-bar mt-3">
+        <div class="util-label flex justify-between mb-2">
+          <span>POOL UTILIZATION</span>
+          <span style="color:var(--text-bright)">
+            {{ (stats.total ? stats.used / stats.total * 100 : 0) | number:'1.0-0' }}%
           </span>
         </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-4">
-              <div class="stat-box">
-                <div class="stat-value text-primary">{{ stats.total }}</div>
-                <div class="stat-label">Total IPs</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="stat-box">
-                <div class="stat-value text-warning">{{ stats.used }}</div>
-                <div class="stat-label">In Use</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="stat-box">
-                <div class="stat-value text-success">{{ stats.available }}</div>
-                <div class="stat-label">Available</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-grid mt-3">
-            <button class="btn btn-lg"
-                    [class.btn-success]="!running"
-                    [class.btn-danger]="running"
-                    [disabled]="actionLoading"
-                    (click)="toggleServer()">
-              <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
-              <i *ngIf="!actionLoading" class="bi me-2"
-                 [class.bi-play-fill]="!running"
-                 [class.bi-stop-fill]="running"></i>
-              {{ actionLoading ? 'Please wait…' : (running ? 'Stop Server' : 'Start Server') }}
-            </button>
+        <div class="util-track">
+          <div class="util-fill"
+               [style.width.%]="stats.total ? (stats.used / stats.total * 100) : 0">
           </div>
         </div>
       </div>
+
+      <!-- Toggle button -->
+      <div class="mt-4">
+        <button class="pbtn w-full"
+                [class.pbtn-green]="!running"
+                [class.pbtn-red]="running"
+                [disabled]="actionLoading"
+                (click)="toggleServer()">
+          <span *ngIf="actionLoading" class="spin"></span>
+          <i *ngIf="!actionLoading && !running" class="bi bi-play-fill"></i>
+          <i *ngIf="!actionLoading && running"  class="bi bi-stop-fill"></i>
+          {{ actionLoading ? 'PLEASE WAIT…' : (running ? 'STOP SERVER' : 'START SERVER') }}
+        </button>
+      </div>
+
     </div>
+  </div>
 
-    <!-- Conflict Detection Card -->
-    <div class="col-lg-4">
-      <div class="card h-100">
-        <div class="card-header fw-semibold">
-          <i class="bi bi-shield-exclamation me-2 text-warning"></i>Conflict Detection
+  <!-- ── Col B: Conflict Detection ─────────────────────────────────── -->
+  <div class="panel area-detect">
+    <div class="panel-head">
+      <span><i class="bi bi-shield-exclamation panel-head-icon"></i>CONFLICT DETECTION</span>
+    </div>
+    <div class="panel-body flex flex-col" style="gap:12px">
+
+      <p class="detect-info">
+        Broadcasts DHCP DISCOVER and listens for OFFER replies from other servers on the network.
+      </p>
+
+      <div *ngIf="conflictResult">
+        <!-- Warning -->
+        <div *ngIf="conflictResult.warning" class="alert-warn mb-2">
+          <div class="alert-tag">WARN</div>
+          {{ conflictResult.warning }}
         </div>
-        <div class="card-body d-flex flex-column">
-          <p class="small" style="color:var(--muted)">
-            Broadcasts a DHCP DISCOVER on the network and listens for OFFER replies
-            from other DHCP servers. Ensure this machine has network access before scanning.
-          </p>
-
-          <div *ngIf="conflictResult" class="mb-3">
-
-            <!-- Warning: scan was incomplete -->
-            <div *ngIf="conflictResult.warning" class="mb-2"
-                 style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;color:#fcd34d;font-size:.8rem">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              <strong>Scan incomplete:</strong> {{ conflictResult.warning }}
-            </div>
-
-            <!-- Conflict found -->
-            <div *ngIf="conflictResult.hasConflict" class="conflict-alert small">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              <strong>Conflict detected!</strong> Found {{ conflictResult.servers.length }} other server(s):
-              <ul class="mb-0 mt-1">
-                <li *ngFor="let s of conflictResult.servers">{{ s.ip }} (from {{ s.from }})</li>
-              </ul>
-            </div>
-
-            <!-- No conflict AND no warning -->
-            <div *ngIf="!conflictResult.hasConflict && !conflictResult.warning" class="conflict-ok small">
-              <i class="bi bi-check-circle-fill me-2"></i>
-              No other DHCP servers detected — safe to run.
-            </div>
-
-            <!-- Scan method used -->
-            <div *ngIf="conflictResult.method && conflictResult.method !== 'none'"
-                 class="mt-2" style="color:var(--muted);font-size:.75rem">
-              <i class="bi bi-info-circle me-1"></i>Method: {{ conflictResult.method }}
-            </div>
-
+        <!-- Conflict found -->
+        <div *ngIf="conflictResult.hasConflict" class="alert-conflict">
+          <div class="alert-tag-red">CONFLICT</div>
+          Found {{ conflictResult.servers.length }} competing server(s):
+          <div *ngFor="let s of conflictResult.servers" class="conflict-server mt-2">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ s.ip }}
+            <span *ngIf="s.from !== s.ip" style="color:var(--text-dim)"> (from {{ s.from }})</span>
           </div>
-
-          <div class="d-grid mt-auto">
-            <button class="btn btn-warning" (click)="detectConflicts()" [disabled]="detectLoading">
-              <span *ngIf="detectLoading" class="spinner-border spinner-border-sm me-2"></span>
-              <i *ngIf="!detectLoading" class="bi bi-radar me-2"></i>
-              {{ detectLoading ? 'Scanning (5 s)…' : 'Scan Network' }}
-            </button>
-          </div>
+        </div>
+        <!-- Safe -->
+        <div *ngIf="!conflictResult.hasConflict && !conflictResult.warning" class="alert-ok">
+          <div class="alert-tag-ok">CLEAR</div>
+          No competing DHCP servers detected.
+        </div>
+        <!-- Method -->
+        <div *ngIf="conflictResult.method && conflictResult.method !== 'none'"
+             class="detect-method mt-2">
+          <i class="bi bi-info-circle"></i> scan via {{ conflictResult.method }}
         </div>
       </div>
-    </div>
 
-    <!-- Quick Info Card -->
-    <div class="col-lg-4">
-      <div class="card h-100">
-        <div class="card-header fw-semibold">
-          <i class="bi bi-info-circle me-2 text-info"></i>Current Config
+      <button class="pbtn pbtn-amber mt-auto"
+              (click)="detectConflicts()"
+              [disabled]="detectLoading">
+        <span *ngIf="detectLoading"  class="spin"></span>
+        <i    *ngIf="!detectLoading" class="bi bi-radar"></i>
+        {{ detectLoading ? 'SCANNING…' : 'SCAN NETWORK' }}
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── Col C: Current Config ──────────────────────────────────────── -->
+  <div class="panel area-info">
+    <div class="panel-head">
+      <span><i class="bi bi-info-circle panel-head-icon"></i>ACTIVE CONFIG</span>
+    </div>
+    <div class="panel-body" *ngIf="config">
+      <div class="kv-row"><span class="kv-key">Server IP</span>    <span class="kv-val">{{ config.serverIp }}</span></div>
+      <div class="kv-row"><span class="kv-key">Subnet Mask</span>  <span class="kv-val">{{ config.subnetMask }}</span></div>
+      <div class="kv-row"><span class="kv-key">Router</span>       <span class="kv-val">{{ config.router }}</span></div>
+      <div class="kv-row"><span class="kv-key">DNS</span>          <span class="kv-val">{{ config.dns.join(', ') }}</span></div>
+      <div class="kv-row"><span class="kv-key">Pool Start</span>   <span class="kv-val">{{ config.poolStart }}</span></div>
+      <div class="kv-row"><span class="kv-key">Pool End</span>     <span class="kv-val">{{ config.poolEnd }}</span></div>
+      <div class="kv-row" style="border-bottom:none">
+        <span class="kv-key">Lease Time</span>
+        <span class="kv-val">{{ config.leaseTime }}s</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Col D–E: Config Editor ─────────────────────────────────────── -->
+  <div class="panel area-config">
+    <div class="panel-head">
+      <span><i class="bi bi-sliders panel-head-icon"></i>EDIT CONFIGURATION</span>
+      <span *ngIf="configSaved" class="saved-flash">✓ SAVED</span>
+    </div>
+    <div class="panel-body">
+      <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
+        <div class="config-form-grid">
+
+          <div class="field">
+            <label class="field-label">Server IP</label>
+            <input formControlName="serverIp" class="field-input" placeholder="192.168.1.1">
+          </div>
+          <div class="field">
+            <label class="field-label">Subnet Mask</label>
+            <input formControlName="subnetMask" class="field-input" placeholder="255.255.255.0">
+          </div>
+          <div class="field">
+            <label class="field-label">Router / Gateway</label>
+            <input formControlName="router" class="field-input" placeholder="192.168.1.1">
+          </div>
+          <div class="field">
+            <label class="field-label">DNS Servers (comma-separated)</label>
+            <input formControlName="dnsText" class="field-input" placeholder="8.8.8.8, 8.8.4.4">
+          </div>
+          <div class="field">
+            <label class="field-label">Pool Start</label>
+            <input formControlName="poolStart" class="field-input" placeholder="192.168.1.100">
+          </div>
+          <div class="field">
+            <label class="field-label">Pool End</label>
+            <input formControlName="poolEnd" class="field-input" placeholder="192.168.1.200">
+          </div>
+
         </div>
-        <div class="card-body" *ngIf="config">
-          <table class="table table-sm mb-0" style="font-size:.83rem">
-            <tbody>
-              <tr><th style="color:var(--muted);width:50%">Server IP</th><td>{{ config.serverIp }}</td></tr>
-              <tr><th style="color:var(--muted)">Subnet Mask</th><td>{{ config.subnetMask }}</td></tr>
-              <tr><th style="color:var(--muted)">Router</th><td>{{ config.router }}</td></tr>
-              <tr><th style="color:var(--muted)">DNS</th><td>{{ config.dns.join(', ') }}</td></tr>
-              <tr><th style="color:var(--muted)">Pool</th><td>{{ config.poolStart }} – {{ config.poolEnd }}</td></tr>
-              <tr><th style="color:var(--muted)">Lease Time</th><td>{{ config.leaseTime }}s</td></tr>
-            </tbody>
-          </table>
+
+        <div class="field mt-2">
+          <label class="field-label">Lease Time (seconds)</label>
+          <input formControlName="leaseTime" type="number" class="field-input">
+        </div>
+
+        <div class="flex items-center gap-3 mt-4">
+          <button type="submit"
+                  class="pbtn pbtn-amber pbtn-sm"
+                  [disabled]="configForm.invalid || configLoading">
+            <span *ngIf="configLoading"  class="spin spin-sm"></span>
+            <i    *ngIf="!configLoading" class="bi bi-floppy"></i>
+            {{ configLoading ? 'SAVING…' : 'SAVE CONFIG' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Col F–G: Server Logs ───────────────────────────────────────── -->
+  <div class="panel area-logs">
+    <div class="panel-head">
+      <span><i class="bi bi-terminal panel-head-icon"></i>SYSTEM LOG</span>
+      <span class="badge-count">{{ logs.length }}</span>
+    </div>
+    <div class="panel-body" style="padding:10px">
+      <div class="log-panel" #logPanel>
+        <div *ngFor="let entry of logs" class="log-line">
+          <span class="log-ts">{{ formatTime(entry.time) }}</span>
+          <span class="log-msg"
+                [class.incoming]="entry.msg.startsWith('←')"
+                [class.outgoing]="entry.msg.startsWith('→')">{{ entry.msg }}</span>
+        </div>
+        <div *ngIf="!logs.length" class="log-empty">
+          — NO LOG ENTRIES —
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Row 2: Config Form + Logs -->
-  <div class="row g-3 mb-3">
-
-    <!-- Configuration Form -->
-    <div class="col-lg-5">
-      <div class="card">
-        <div class="card-header fw-semibold">
-          <i class="bi bi-sliders me-2 text-primary"></i>Edit Configuration
-        </div>
-        <div class="card-body">
-          <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
-            <div class="row g-2">
-              <div class="col-6">
-                <label class="form-label">Server IP</label>
-                <input formControlName="serverIp" class="form-control form-control-sm" placeholder="192.168.1.1">
-              </div>
-              <div class="col-6">
-                <label class="form-label">Subnet Mask</label>
-                <input formControlName="subnetMask" class="form-control form-control-sm" placeholder="255.255.255.0">
-              </div>
-              <div class="col-6">
-                <label class="form-label">Router / Gateway</label>
-                <input formControlName="router" class="form-control form-control-sm" placeholder="192.168.1.1">
-              </div>
-              <div class="col-6">
-                <label class="form-label">DNS Servers (comma-separated)</label>
-                <input formControlName="dnsText" class="form-control form-control-sm" placeholder="8.8.8.8, 8.8.4.4">
-              </div>
-              <div class="col-6">
-                <label class="form-label">Pool Start</label>
-                <input formControlName="poolStart" class="form-control form-control-sm" placeholder="192.168.1.100">
-              </div>
-              <div class="col-6">
-                <label class="form-label">Pool End</label>
-                <input formControlName="poolEnd" class="form-control form-control-sm" placeholder="192.168.1.200">
-              </div>
-              <div class="col-12">
-                <label class="form-label">Lease Time (seconds)</label>
-                <input formControlName="leaseTime" type="number" class="form-control form-control-sm">
-              </div>
-            </div>
-
-            <div class="d-flex align-items-center gap-3 mt-3">
-              <button type="submit" class="btn btn-primary btn-sm" [disabled]="configForm.invalid || configLoading">
-                <span *ngIf="configLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i *ngIf="!configLoading" class="bi bi-floppy me-1"></i>
-                Save
+  <!-- ── Full width: Active Leases ──────────────────────────────────── -->
+  <div class="panel area-leases">
+    <div class="panel-head">
+      <span><i class="bi bi-hdd-network panel-head-icon"></i>ACTIVE LEASES</span>
+      <span class="badge-count">{{ leases.length }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>IP Address</th>
+            <th>MAC Address</th>
+            <th>Manufacturer</th>
+            <th>Hostname</th>
+            <th>Assigned</th>
+            <th>Expires</th>
+            <th style="width:56px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let lease of leases">
+            <td class="val-ip">{{ lease.ip }}</td>
+            <td class="val-mac">{{ lease.mac }}</td>
+            <td class="val-vendor">{{ vendorFor(lease.mac) }}</td>
+            <td>{{ lease.hostname || '—' }}</td>
+            <td style="color:var(--text-dim);font-size:0.72rem">{{ formatTime(lease.assignedAt) }}</td>
+            <td style="color:var(--text-dim);font-size:0.72rem">{{ formatExpiry(lease.expiry) }}</td>
+            <td>
+              <button class="pbtn pbtn-icon"
+                      (click)="releaseLease(lease.mac)"
+                      title="Release lease">
+                <i class="bi bi-x-lg"></i>
               </button>
-              <span *ngIf="configSaved" class="text-success small">
-                <i class="bi bi-check-lg me-1"></i>Saved
-              </span>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Server Logs -->
-    <div class="col-lg-7">
-      <div class="card h-100">
-        <div class="card-header d-flex align-items-center justify-content-between fw-semibold">
-          <span><i class="bi bi-terminal me-2 text-success"></i>Server Logs</span>
-          <span class="badge bg-secondary">{{ logs.length }}</span>
-        </div>
-        <div class="card-body p-2">
-          <div class="log-panel" #logPanel>
-            <div *ngFor="let entry of logs" class="log-entry">
-              <span class="log-time">{{ formatTime(entry.time) }}</span>
-              <span class="log-msg">{{ entry.msg }}</span>
-            </div>
-            <div *ngIf="!logs.length" style="color:var(--muted);text-align:center;padding:20px">
-              No log entries yet
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Row 3: Leases Table -->
-  <div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between fw-semibold">
-      <span><i class="bi bi-table me-2 text-info"></i>Active Leases</span>
-      <span class="badge bg-primary">{{ leases.length }}</span>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover table-sm mb-0">
-          <thead>
-            <tr>
-              <th>IP Address</th>
-              <th>MAC Address</th>
-              <th>Hostname</th>
-              <th>Assigned</th>
-              <th>Expires</th>
-              <th style="width:80px"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let lease of leases">
-              <td class="font-monospace text-info">{{ lease.ip }}</td>
-              <td class="font-monospace small">{{ lease.mac }}</td>
-              <td>{{ lease.hostname || '—' }}</td>
-              <td class="small" style="color:var(--muted)">{{ formatTime(lease.assignedAt) }}</td>
-              <td class="small" style="color:var(--muted)">{{ formatExpiry(lease.expiry) }}</td>
-              <td>
-                <button class="btn btn-outline-danger btn-sm py-0 px-2"
-                        (click)="releaseLease(lease.mac)"
-                        title="Release lease">
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="!leases.length">
-              <td colspan="6" class="text-center py-4" style="color:var(--muted)">
-                <i class="bi bi-inbox fs-4 d-block mb-1"></i>
-                No active leases
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+            </td>
+          </tr>
+          <tr *ngIf="!leases.length" class="empty-row">
+            <td colspan="7">
+              <i class="bi bi-inbox" style="margin-right:8px"></i>NO ACTIVE LEASES
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 

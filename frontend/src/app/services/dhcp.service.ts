@@ -1,8 +1,9 @@
-import { Injectable }     from '@angular/core';
-import { HttpClient }     from '@angular/common/http';
-import { Subject }        from 'rxjs';
-import { environment }    from '../../environments/environment';
-import { AuthService }    from './auth.service';
+import { Injectable }              from '@angular/core';
+import { HttpClient }              from '@angular/common/http';
+import { Subject }                 from 'rxjs';
+import { environment }             from '../../environments/environment';
+import { AuthService }             from './auth.service';
+import { lookupVendor }            from './oui-data';
 
 export interface DHCPConfig {
   serverIp:    string;
@@ -81,6 +82,10 @@ export class DhcpService {
     return this.http.delete<{ success: boolean }>(
       `${environment.apiUrl}/dhcp/leases/${encodeURIComponent(mac)}`
     );
+  }
+
+  getMacVendor(mac: string): string {
+    return lookupVendor(mac);
   }
 
   // ── WebSocket ───────────────────────────────────────────────────────────────

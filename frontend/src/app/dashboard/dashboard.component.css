@@ -1,20 +1,161 @@
-.navbar {
+/* ── Top bar ──────────────────────────────────────────────── */
+.topbar {
   position: sticky;
   top: 0;
   z-index: 100;
+  background: rgba(5,5,4,0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-hi);
+  padding: 0 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-th {
-  font-weight: 500;
-  font-size: 0.8rem;
-  color: var(--muted);
+.topbar-left  { display: flex; align-items: center; gap: 14px; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+
+.topbar-logo {
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.topbar-logo .logo-bracket { color: var(--border-hi); }
+.topbar-logo               { color: var(--amber); text-shadow: 0 0 12px var(--amber-glow); }
+
+.topbar-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--text-bright);
+}
+
+.topbar-sep { color: var(--border-hi); }
+
+.topbar-meta {
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+/* ── Dashboard grid ───────────────────────────────────────── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: 2px;
+  padding: 2px;
+  min-height: calc(100vh - 48px);
+}
+
+/* Grid area assignments */
+.area-control { grid-column: 1; grid-row: 1; }
+.area-detect  { grid-column: 2; grid-row: 1; }
+.area-info    { grid-column: 3; grid-row: 1; }
+.area-config  { grid-column: 1 / 3; grid-row: 2; }
+.area-logs    { grid-column: 3; grid-row: 2; }
+.area-leases  { grid-column: 1 / -1; grid-row: 3; }
+
+/* ── Stat row (in server control) ─────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+/* ── Utilization bar ──────────────────────────────────────── */
+.util-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-top: none !important;
-  padding: 10px 12px !important;
+  color: var(--text-dim);
 }
 
-td {
-  padding: 10px 12px !important;
-  vertical-align: middle;
+.util-track {
+  height: 4px;
+  background: var(--border);
+  position: relative;
+}
+
+.util-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber-bright));
+  box-shadow: 0 0 8px var(--amber-glow);
+  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Config form grid ─────────────────────────────────────── */
+.config-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+
+/* ── Detect panel ─────────────────────────────────────────── */
+.detect-info {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+.detect-method {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+/* Alert tags inside alert boxes */
+.alert-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  border: 1px solid rgba(232,200,60,0.4);
+  padding: 2px 7px;
+  margin-bottom: 7px;
+  color: #e0c860;
+}
+
+.alert-tag-red {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  border: 1px solid rgba(232,64,64,0.4);
+  padding: 2px 7px;
+  margin-bottom: 7px;
+  color: var(--red);
+}
+
+.alert-tag-ok {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  border: 1px solid rgba(61,232,154,0.4);
+  padding: 2px 7px;
+  margin-bottom: 7px;
+  color: var(--green);
+}
+
+.conflict-server { font-size: 0.84rem; color: #ee9090; }
+
+/* ── Responsive: collapse grid on small screens ───────────── */
+@media (max-width: 900px) {
+  .dash-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+  .area-control,
+  .area-detect,
+  .area-info,
+  .area-config,
+  .area-logs,
+  .area-leases {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .config-form-grid { grid-template-columns: 1fr; }
 }
