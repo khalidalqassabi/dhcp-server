@@ -2,9 +2,9 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { FormBuilder, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { AuthService }  from '../services/auth.service';
-import { DhcpService, DHCPConfig, Lease, PoolStats, WsMessage } from '../services/dhcp.service';
+import { DhcpService, DHCPConfig, Lease, WsMessage } from '../services/dhcp.service';
 
-export type DeviceType = 'Mobile' | 'Desktop' | 'Network' | 'IoT' | 'Unknown';
+type DeviceType = 'Mobile' | 'Desktop' | 'Network' | 'IoT' | 'Unknown';
 
 const TYPE_COLORS: Record<DeviceType, string> = {
   Mobile:  '#5ac4b0',
@@ -79,7 +79,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dhcp.disconnectWs();
   }
 
-  private applyStatus(s: { running: boolean; config: DHCPConfig; leases: Lease[]; stats: PoolStats; logs: { time: string; msg: string }[] }) {
+  private applyStatus(s: { running: boolean; config: DHCPConfig; leases: Lease[]; logs: { time: string; msg: string }[] }) {
     this.running = s.running;
     this.leases  = s.leases;
     this.logs    = s.logs;
