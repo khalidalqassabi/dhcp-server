@@ -4,24 +4,14 @@ services:
     build: ./backend
     container_name: dhcp-backend
     restart: unless-stopped
-
-    # ── DHCP networking ────────────────────────────────────────────────────────
-    # On Linux: uncomment network_mode and comment out the ports + networks blocks
-    # below — host mode is the only reliable way to receive UDP broadcast from
-    # real clients on the LAN.
-    #
-    # network_mode: host
-    #
     ports:
-      - "3000:3000"          # HTTP API + WebSocket
-      - "67:67/udp"          # DHCP — required for real lease assignment
+      - "3000:3000"
+      - "67:67/udp"
     cap_add:
-      - NET_ADMIN            # bind to privileged port 67
-      - NET_RAW              # send raw UDP packets (conflict detection)
-
+      - NET_ADMIN
+      - NET_RAW
     env_file:
-      - .env                 # create from .env.example — never commit .env
-
+      - .env
     environment:
       - PORT=3000
       - SERVER_IP=${SERVER_IP:-192.168.1.1}
@@ -31,20 +21,19 @@ services:
       - POOL_START=${POOL_START:-192.168.1.100}
       - POOL_END=${POOL_END:-192.168.1.200}
       - LEASE_TIME=${LEASE_TIME:-86400}
-
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))\""]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 10s
-
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-
+    volumes:
+      - backend-data:/app/data
     networks:
       - dhcp-net
 
@@ -54,27 +43,26 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-
     depends_on:
       dhcp-backend:
         condition: service_healthy
-
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:80"]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 10s
-
     logging:
       driver: json-file
       options:
         max-size: "5m"
         max-file: "2"
-
     networks:
       - dhcp-net
 
 networks:
   dhcp-net:
     driver: bridge
+
+volumes:
+  backend-data:
