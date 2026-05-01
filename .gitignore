@@ -11,6 +11,9 @@ frontend/.angular/
 .env
 *.env.local
 
+# Runtime credentials (auto-generated, never commit)
+backend/data/
+
 # Logs
 *.log
 npm-debug.log*
