@@ -89,7 +89,7 @@ Kea `config-get` returns a `Dhcp4` object. Fields mapped to existing `DHCPConfig
 
 | Frontend field | Kea path |
 |---|---|
-| `serverIp` | `subnet4[0].relay.ip-addresses[0]` or computed from interface |
+| `serverIp` | Not directly in Kea config. Display the first IP of the subnet's gateway (`routers` option). The "server IP" field is dropped from the editable config form. |
 | `subnetMask` | derived from `subnet4[0].subnet` (CIDR) |
 | `router` | `subnet4[0].option-data` where `name = "routers"` |
 | `dns` | `subnet4[0].option-data` where `name = "domain-name-servers"` |
@@ -133,7 +133,7 @@ Pool stats derived in service: `total = pool size`, `used = leases.length`, `ava
 - `frontend/src/app/interceptors/auth.interceptor.ts`
 - `frontend/src/app/settings/` — entire directory
 - `frontend/src/app/layout/layout.component.html` — remove `SETTINGS` nav link
-- `frontend/proxy.conf.json` — proxy now happens in nginx; for `ng serve` dev, update to point to `kea-ctrl-agent` or document running compose stack
+- `frontend/proxy.conf.json` — update `target` to `http://localhost:8000` (assuming kea-ctrl-agent exposes `:8000` on host) and remove the `/ws` block. Document that dev requires the `kea-ctrl-agent` container running.
 
 ---
 
