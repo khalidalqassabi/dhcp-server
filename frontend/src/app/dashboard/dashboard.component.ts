@@ -6,10 +6,6 @@ import { DhcpService, DHCPConfig, Lease, PoolStats, WsMessage } from '../service
 
 export type DeviceType = 'Mobile' | 'Desktop' | 'Network' | 'IoT' | 'Unknown';
 
-const DONUT_C = 2 * Math.PI * 56;
-
-const CHART_COLORS = ['#5ac4b0', '#3de89a', '#ddb83a', '#e84040', '#a78bfa', '#8a7845'];
-
 const TYPE_COLORS: Record<DeviceType, string> = {
   Mobile:  '#5ac4b0',
   Desktop: '#3de89a',
@@ -36,7 +32,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   running       = false;
   leases:  Lease[]    = [];
-  stats:   PoolStats  = { total: 0, used: 0, available: 0 };
   logs:    { time: string; msg: string }[] = [];
   config!: DHCPConfig;
 
@@ -87,7 +82,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private applyStatus(s: { running: boolean; config: DHCPConfig; leases: Lease[]; stats: PoolStats; logs: { time: string; msg: string }[] }) {
     this.running = s.running;
     this.leases  = s.leases;
-    this.stats   = s.stats;
     this.logs    = s.logs;
     this.config  = s.config;
     this.configForm.patchValue({
@@ -154,57 +148,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return '#e84040';
   }
 
-  get manufacturerData(): { label: string; count: number; pct: number; color: string; dasharray: string; dashoffset: number }[] {
-    if (!this.leases.length) return [];
-
-    const counts = new Map<string, number>();
-    for (const lease of this.leases) {
-      const v = this.vendorFor(lease.mac) || 'Unknown';
-      counts.set(v, (counts.get(v) || 0) + 1);
-    }
-
-    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-    const top    = sorted.slice(0, 5);
-    const rest   = sorted.slice(5).reduce((s, [, c]) => s + c, 0);
-
-    const entries: { label: string; count: number }[] = [
-      ...top.map(([label, count]) => ({ label, count })),
-      ...(rest > 0 ? [{ label: 'Others', count: rest }] : []),
-    ];
-
-    const total = this.leases.length;
-    let cumulative = 0;
-
-    return entries.map((e, i) => {
-      const segLen     = (e.count / total) * DONUT_C;
-      const dasharray  = `${segLen.toFixed(2)} ${(DONUT_C - segLen).toFixed(2)}`;
-      const dashoffset = DONUT_C - cumulative;
-      cumulative += segLen;
-      return {
-        label: e.label,
-        count: e.count,
-        pct:   (e.count / total) * 100,
-        color: CHART_COLORS[i] ?? '#8a7845',
-        dasharray,
-        dashoffset,
-      };
-    });
-  }
-
-  get deviceTypeData(): { label: string; count: number; pct: number; color: string; icon: string }[] {
-    const total  = this.leases.length;
-    const types: DeviceType[] = ['Mobile', 'Desktop', 'Network', 'IoT', 'Unknown'];
-    const counts = Object.fromEntries(types.map(t => [t, 0])) as Record<DeviceType, number>;
-    for (const lease of this.leases) counts[this.deviceTypeFor(lease.mac, lease.hostname)]++;
-    return types.map(t => ({
-      label: t,
-      count: counts[t],
-      pct:   total ? (counts[t] / total) * 100 : 0,
-      color: TYPE_COLORS[t],
-      icon:  TYPE_ICONS[t],
-    }));
-  }
-
   get filteredLeases(): Lease[] {
     let result = this.leases;
     if (this.activeTypeFilter !== 'ALL') {
@@ -221,10 +164,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  trackByLabel(_: number, item: { label: string }): string {
-    return item.label;
-  }
-
   private onWsMessage(msg: WsMessage) {
     if (msg.type === 'connected') {
       const s = msg.data as Parameters<typeof this.applyStatus>[0];
@@ -233,7 +172,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.running = (msg.data as { running: boolean }).running;
     } else if (msg.type === 'leases') {
       this.leases = msg.data as Lease[];
-      this.dhcp.getStatus().subscribe(s => this.stats = s.stats);
     } else if (msg.type === 'log') {
       const entry = msg.data as { time: string; msg: string };
       this.logs.push(entry);
