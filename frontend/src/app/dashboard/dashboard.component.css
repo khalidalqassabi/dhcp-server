@@ -5,7 +5,7 @@
   grid-template-rows: auto auto auto auto;
   gap: 2px;
   padding: 2px;
-  min-height: calc(100vh - 48px);
+  min-height: 100vh;
 }
 
 /* Grid area assignments */
@@ -15,34 +15,6 @@
 .area-config  { grid-column: 1 / 3; grid-row: 2; }
 .area-logs    { grid-column: 3; grid-row: 2; }
 .area-leases  { grid-column: 1 / -1; grid-row: 3; }
-
-/* ── Stat row (in server control) ─────────────────────────── */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-}
-
-/* ── Utilization bar ──────────────────────────────────────── */
-.util-label {
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.util-track {
-  height: 4px;
-  background: var(--border);
-  position: relative;
-}
-
-.util-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--amber-dim), var(--amber-bright));
-  box-shadow: 0 0 8px var(--amber-glow);
-  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
 
 /* ── Config form grid ─────────────────────────────────────── */
 .config-form-grid {
@@ -99,148 +71,6 @@
 }
 
 .conflict-server { font-size: 0.84rem; color: #ee9090; }
-
-/* ── Chart panel layout ────────────────────────────────────── */
-.chart-halves {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  min-height: 260px;
-}
-
-.chart-half {
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.chart-half-title {
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  align-self: flex-start;
-}
-
-.chart-no-data {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-dim);
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-}
-
-/* ── Donut chart ───────────────────────────────────────────── */
-.donut-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-}
-
-.donut-svg {
-  width: 160px;
-  height: 160px;
-  flex-shrink: 0;
-}
-
-.donut-center-num {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 22px;
-  font-weight: 700;
-  fill: var(--text-bright);
-}
-
-.donut-center-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  fill: var(--text-dim);
-}
-
-.donut-legend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 20px;
-  width: 100%;
-  max-width: 280px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.76rem;
-}
-
-.legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.legend-name {
-  color: var(--text);
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.legend-count {
-  color: var(--text-bright);
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-/* ── Horizontal bar chart ──────────────────────────────────── */
-.bar-chart {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: 100px 1fr 44px;
-  align-items: center;
-  gap: 12px;
-}
-
-.bar-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.78rem;
-  color: var(--text);
-  white-space: nowrap;
-}
-
-.bar-track {
-  height: 10px;
-  background: var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.bar-pct {
-  font-size: 0.76rem;
-  font-weight: 600;
-  text-align: right;
-}
 
 /* ── Vendor badge ──────────────────────────────────────────── */
 .vendor-badge {
@@ -347,7 +177,5 @@
     grid-row: auto;
   }
   .config-form-grid { grid-template-columns: 1fr; }
-  .chart-halves { grid-template-columns: 1fr; }
-  .bar-row { grid-template-columns: 80px 1fr 36px; }
   .lease-search { width: 100%; }
 }
