@@ -1,0 +1,122 @@
+:host { display: block; height: 100vh; overflow: hidden; }
+
+.app-shell {
+  display: flex;
+  height: 100vh;
+}
+
+/* ── Sidebar ──────────────────────────────── */
+.sidebar {
+  position: relative;
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.22s ease, min-width 0.22s ease;
+  overflow: hidden;
+}
+
+.app-shell.sidebar-collapsed .sidebar {
+  width: 56px;
+  min-width: 56px;
+}
+
+/* Header */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.sidebar-logo {
+  font-size: 1.1rem;
+  color: var(--amber);
+  text-shadow: 0 0 12px var(--amber-glow);
+  flex-shrink: 0;
+}
+.sidebar-logo .logo-bracket { color: var(--border-hi); }
+
+.sidebar-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--text-bright);
+  transition: opacity 0.15s ease;
+}
+.app-shell.sidebar-collapsed .sidebar-title { opacity: 0; pointer-events: none; }
+
+/* Nav list */
+.nav-list {
+  list-style: none;
+  padding: 12px 0;
+  margin: 0;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  transition: color 0.15s, background 0.15s;
+}
+.nav-item:hover { color: var(--text-bright); background: rgba(255,255,255,0.04); }
+.nav-item.active { color: var(--amber); background: rgba(221,184,58,0.08); }
+
+.nav-icon { font-size: 1.05rem; flex-shrink: 0; }
+
+.nav-label {
+  transition: opacity 0.15s ease;
+}
+.app-shell.sidebar-collapsed .nav-label { opacity: 0; pointer-events: none; }
+
+/* Footer */
+.sidebar-footer {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.nav-logout { color: var(--text-dim); }
+.nav-logout:hover { color: var(--red); }
+
+/* Toggle button */
+.sidebar-toggle {
+  position: absolute;
+  bottom: 70px;
+  right: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.7rem;
+  z-index: 10;
+  transition: color 0.15s;
+}
+.sidebar-toggle:hover { color: var(--text-bright); }
+
+/* ── Main content ─────────────────────────── */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}

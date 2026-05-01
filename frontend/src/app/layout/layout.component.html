@@ -1,0 +1,50 @@
+<div class="app-shell" [class.sidebar-collapsed]="collapsed">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">
+        <span class="logo-bracket">[</span>⬡<span class="logo-bracket">]</span>
+      </span>
+      <span class="sidebar-title">DHCP CTRL</span>
+    </div>
+
+    <ul class="nav-list">
+      <li>
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="bi bi-speedometer2 nav-icon"></i>
+          <span class="nav-label">DASHBOARD</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-item" routerLink="/pool" routerLinkActive="active">
+          <i class="bi bi-hdd-stack nav-icon"></i>
+          <span class="nav-label">POOL</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-item" routerLink="/settings" routerLinkActive="active">
+          <i class="bi bi-gear nav-icon"></i>
+          <span class="nav-label">SETTINGS</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <button class="nav-item nav-logout w-full" (click)="auth.logout()">
+        <i class="bi bi-box-arrow-right nav-icon"></i>
+        <span class="nav-label">LOGOUT</span>
+      </button>
+    </div>
+
+    <button class="sidebar-toggle" (click)="toggleSidebar()">
+      <i [class]="collapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
+    </button>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>
