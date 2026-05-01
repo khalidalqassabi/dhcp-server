@@ -4,20 +4,48 @@ services:
     build: ./backend
     container_name: dhcp-backend
     restart: unless-stopped
-    # network_mode: host  ← فعّل هذا على Linux فقط للـ DHCP الفعلي
+
+    # ── DHCP networking ────────────────────────────────────────────────────────
+    # On Linux: uncomment network_mode and comment out the ports + networks blocks
+    # below — host mode is the only reliable way to receive UDP broadcast from
+    # real clients on the LAN.
+    #
+    # network_mode: host
+    #
     ports:
-      - "3000:3000"
+      - "3000:3000"          # HTTP API + WebSocket
+      - "67:67/udp"          # DHCP — required for real lease assignment
+    cap_add:
+      - NET_ADMIN            # bind to privileged port 67
+      - NET_RAW              # send raw UDP packets (conflict detection)
+
+    env_file:
+      - .env                 # create from .env.example — never commit .env
+
     environment:
       - PORT=3000
-      - SERVER_IP=192.168.1.1
-      - SUBNET_MASK=255.255.255.0
-      - ROUTER=192.168.1.1
-      - DNS=8.8.8.8,8.8.4.4
-      - POOL_START=192.168.1.100
-      - POOL_END=192.168.1.200
-      - LEASE_TIME=86400
-      - ADMIN_PASSWORD=admin123
-      - JWT_SECRET=change-this-secret-to-something-long
+      - SERVER_IP=${SERVER_IP:-192.168.1.1}
+      - SUBNET_MASK=${SUBNET_MASK:-255.255.255.0}
+      - ROUTER=${ROUTER:-192.168.1.1}
+      - DNS=${DNS:-8.8.8.8,8.8.4.4}
+      - POOL_START=${POOL_START:-192.168.1.100}
+      - POOL_END=${POOL_END:-192.168.1.200}
+      - LEASE_TIME=${LEASE_TIME:-86400}
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/dhcp/status",
+             "--header", "Authorization: Bearer skip"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
     networks:
       - dhcp-net
 
@@ -27,8 +55,24 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+
     depends_on:
-      - dhcp-backend
+      dhcp-backend:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
     networks:
       - dhcp-net
 
