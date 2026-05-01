@@ -1,16 +1,24 @@
 import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent }       from './login/login.component';
+import { LayoutComponent }      from './layout/layout.component';
 import { DashboardComponent }   from './dashboard/dashboard.component';
 import { SettingsComponent }    from './settings/settings.component';
 import { authGuard }            from './guards/auth.guard';
 
 const routes: Routes = [
-  { path: '',         redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: 'login',    component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
-  { path: 'settings', component: SettingsComponent,  canActivate: [authGuard] },
-  { path: '**',       redirectTo: 'dashboard' }
+  { path: 'login', component: LoginComponent },
+  {
+    path: '',
+    component: LayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '',          redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'settings',  component: SettingsComponent },
+      { path: '**',        redirectTo: 'dashboard' }
+    ]
+  }
 ];
 
 @NgModule({
