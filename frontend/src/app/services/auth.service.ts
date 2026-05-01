@@ -35,4 +35,11 @@ export class AuthService {
       return false;
     }
   }
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.http.post<{ success: boolean }>(
+      `${environment.apiUrl}/auth/change-password`,
+      { currentPassword, newPassword }
+    );
+  }
 }

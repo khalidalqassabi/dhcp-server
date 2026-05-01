@@ -7,10 +7,11 @@ import { AppRoutingModule }   from './app-routing.module';
 import { AppComponent }       from './app.component';
 import { LoginComponent }     from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { SettingsComponent }  from './settings/settings.component';
 import { AuthInterceptor }    from './interceptors/auth.interceptor';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent, DashboardComponent],
+  declarations: [AppComponent, LoginComponent, DashboardComponent, SettingsComponent],
   imports:      [BrowserModule, AppRoutingModule, ReactiveFormsModule, HttpClientModule],
   providers:    [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap:    [AppComponent]
