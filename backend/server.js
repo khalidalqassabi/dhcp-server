@@ -94,8 +94,8 @@ wss.on('connection', (ws, req) => {
 });
 
 // ── REST routes ────────────────────────────────────────────────────────────────
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body || {};
@@ -116,6 +116,7 @@ app.post('/api/auth/login', (req, res) => {
 app.post('/api/auth/change-password', requireAuth, (req, res) => {
   if (Date.now() < rateLimiter.lockedUntil) {
     const retryAfter = Math.ceil((rateLimiter.lockedUntil - Date.now()) / 1000);
+    res.setHeader('Retry-After', retryAfter);
     return res.status(429).json({
       error: `Too many failed attempts. Try again in ${retryAfter} seconds.`
     });
