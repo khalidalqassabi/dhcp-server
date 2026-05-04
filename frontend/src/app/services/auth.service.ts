@@ -1,45 +1,42 @@
 import { Injectable }  from '@angular/core';
 import { HttpClient }  from '@angular/common/http';
 import { Router }      from '@angular/router';
-import { tap }         from 'rxjs/operators';
-import { environment } from '../../environments/environment';
+import { map, tap }    from 'rxjs/operators';
+import { Observable }  from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly TOKEN_KEY = 'dhcp_token';
+  private readonly AUTHED_KEY = 'kea_authed';
+  private readonly TOKEN_KEY  = 'kea_token';
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  login(username: string, password: string) {
-    return this.http
-      .post<{ token: string; username: string }>(`${environment.apiUrl}/auth/login`, { username, password })
-      .pipe(tap(res => localStorage.setItem(this.TOKEN_KEY, res.token)));
+  login(password: string): Observable<void> {
+    const token = btoa(`kea-api:${password}`);
+    return this.http.post<unknown[]>(
+      '/api/',
+      { command: 'status-get', service: ['dhcp4'] },
+      { headers: { Authorization: `Basic ${token}` } }
+    ).pipe(
+      tap(() => {
+        sessionStorage.setItem(this.TOKEN_KEY,  token);
+        sessionStorage.setItem(this.AUTHED_KEY, 'true');
+      }),
+      map(() => void 0)
+    );
   }
 
-  logout() {
-    localStorage.removeItem(this.TOKEN_KEY);
+  logout(): void {
+    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.AUTHED_KEY);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return sessionStorage.getItem(this.TOKEN_KEY);
   }
 
   isLoggedIn(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp * 1000 > Date.now();
-    } catch {
-      return false;
-    }
-  }
-
-  changePassword(currentPassword: string, newPassword: string) {
-    return this.http.post<{ success: boolean }>(
-      `${environment.apiUrl}/auth/change-password`,
-      { currentPassword, newPassword }
-    );
+    return sessionStorage.getItem(this.AUTHED_KEY) === 'true';
   }
 }
