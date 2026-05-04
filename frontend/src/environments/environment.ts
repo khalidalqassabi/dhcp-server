@@ -1,5 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl:     '/api',
-  wsUrl:      'ws://localhost:3000'
+  production:    false,
+  pollIntervalMs: 5000
 };
