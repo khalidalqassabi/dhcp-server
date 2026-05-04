@@ -10,12 +10,12 @@ import { LayoutComponent }    from './layout/layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PoolComponent }      from './pool/pool.component';
 import { SettingsComponent }  from './settings/settings.component';
-import { AuthInterceptor }    from './interceptors/auth.interceptor';
+import { KeaInterceptor }     from './interceptors/kea.interceptor';
 
 @NgModule({
   declarations: [AppComponent, LoginComponent, LayoutComponent, DashboardComponent, PoolComponent, SettingsComponent],
   imports:      [BrowserModule, AppRoutingModule, ReactiveFormsModule, HttpClientModule],
-  providers:    [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
+  providers:    [{ provide: HTTP_INTERCEPTORS, useClass: KeaInterceptor, multi: true }],
   bootstrap:    [AppComponent]
 })
 export class AppModule {}

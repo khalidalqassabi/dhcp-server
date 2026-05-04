@@ -5,7 +5,7 @@ import { map }         from 'rxjs/operators';
 
 export interface KeaResponse<T = unknown> {
   result:     number;
-  text:       string;
+  text?:      string;
   arguments?: T;
 }
 
@@ -80,7 +80,7 @@ export class KeaService {
       map(responses => {
         const r = responses[0];
         if (r.result !== 0 && r.result !== 3) {
-          throw new Error(r.text || 'Kea command failed');
+          throw new Error(r.text ?? 'Kea command failed');
         }
         return r;
       })
