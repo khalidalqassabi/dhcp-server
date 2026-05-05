@@ -1,0 +1,87 @@
+<div class="page-wrap">
+  <div class="panel">
+    <div class="panel-head">
+      <span><i class="bi bi-diagram-3 panel-head-icon"></i>SUBNETS</span>
+      <button class="pbtn pbtn-sm pbtn-amber" (click)="showForm = !showForm">
+        <i class="bi" [class.bi-plus-lg]="!showForm" [class.bi-x-lg]="showForm"></i>
+        {{ showForm ? 'CANCEL' : 'ADD SUBNET' }}
+      </button>
+    </div>
+
+    <!-- Add form -->
+    <div class="panel-body" *ngIf="showForm">
+      <div *ngIf="error" class="alert-error mb-3"><span class="err-marker">ERR</span> {{ error }}</div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="config-form-grid">
+          <div class="field">
+            <label class="field-label">Subnet ID (integer)</label>
+            <input formControlName="id" type="number" class="field-input" placeholder="1">
+          </div>
+          <div class="field">
+            <label class="field-label">Subnet CIDR</label>
+            <input formControlName="subnet" class="field-input" placeholder="192.168.1.0/24">
+          </div>
+          <div class="field">
+            <label class="field-label">Pool Start</label>
+            <input formControlName="poolStart" class="field-input" placeholder="192.168.1.100">
+          </div>
+          <div class="field">
+            <label class="field-label">Pool End</label>
+            <input formControlName="poolEnd" class="field-input" placeholder="192.168.1.200">
+          </div>
+          <div class="field">
+            <label class="field-label">Router / Gateway</label>
+            <input formControlName="router" class="field-input" placeholder="192.168.1.1">
+          </div>
+          <div class="field">
+            <label class="field-label">DNS Servers (comma-separated)</label>
+            <input formControlName="dns" class="field-input" placeholder="8.8.8.8, 8.8.4.4">
+          </div>
+          <div class="field">
+            <label class="field-label">Lease Time (seconds)</label>
+            <input formControlName="leaseTime" type="number" class="field-input">
+          </div>
+        </div>
+        <div class="flex gap-3 mt-3">
+          <button type="submit" class="pbtn pbtn-amber pbtn-sm" [disabled]="form.invalid || saving">
+            <span *ngIf="saving" class="spin spin-sm"></span>
+            <i *ngIf="!saving" class="bi bi-floppy"></i>
+            {{ saving ? 'SAVING…' : 'SAVE SUBNET' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto">
+      <div *ngIf="loading" class="loading-row">LOADING…</div>
+      <table class="data-table" *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>ID</th><th>Subnet</th><th>Pool Range</th>
+            <th>Router</th><th>DNS</th><th>Lease Time</th>
+            <th style="width:56px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of subnets">
+            <td>{{ s.id }}</td>
+            <td class="val-ip">{{ s.subnet }}</td>
+            <td style="font-size:0.78rem;color:var(--text-dim)">{{ getPool(s) }}</td>
+            <td>{{ getOption(s, 'routers') }}</td>
+            <td style="font-size:0.78rem">{{ getOption(s, 'domain-name-servers') }}</td>
+            <td>{{ s['valid-lifetime'] ?? '—' }}s</td>
+            <td>
+              <button class="pbtn pbtn-icon" (click)="delete(s.id, s.subnet)" title="Delete subnet">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!subnets.length" class="empty-row">
+            <td colspan="7"><i class="bi bi-inbox" style="margin-right:8px"></i>NO SUBNETS CONFIGURED</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
