@@ -1,7 +1,6 @@
-<!-- ── Main grid ─────────────────────────────────────────────────────── -->
 <div class="dash-grid">
 
-  <!-- ── Col A: Server Control ─────────────────────────────────────── -->
+  <!-- Server Control -->
   <div class="panel area-control">
     <div class="panel-head">
       <span><i class="bi bi-power panel-head-icon"></i>SERVER CONTROL</span>
@@ -10,8 +9,6 @@
       </span>
     </div>
     <div class="panel-body">
-
-      <!-- Toggle button -->
       <div class="mt-4">
         <button class="pbtn w-full"
                 [class.pbtn-green]="!running"
@@ -21,183 +18,46 @@
           <span *ngIf="actionLoading" class="spin"></span>
           <i *ngIf="!actionLoading && !running" class="bi bi-play-fill"></i>
           <i *ngIf="!actionLoading && running"  class="bi bi-stop-fill"></i>
-          {{ actionLoading ? 'PLEASE WAIT…' : (running ? 'STOP SERVER' : 'START SERVER') }}
+          {{ actionLoading ? 'PLEASE WAIT…' : (running ? 'DISABLE DHCP' : 'ENABLE DHCP') }}
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- ── Col B: Conflict Detection ─────────────────────────────────── -->
-  <div class="panel area-detect">
-    <div class="panel-head">
-      <span><i class="bi bi-shield-exclamation panel-head-icon"></i>CONFLICT DETECTION</span>
-    </div>
-    <div class="panel-body flex flex-col" style="gap:12px">
-
-      <p class="detect-info">
-        Broadcasts DHCP DISCOVER and listens for OFFER replies from other servers on the network.
-      </p>
-
-      <div *ngIf="conflictResult">
-        <!-- Warning -->
-        <div *ngIf="conflictResult.warning" class="alert-warn mb-2">
-          <div class="alert-tag">WARN</div>
-          {{ conflictResult.warning }}
-        </div>
-        <!-- Conflict found -->
-        <div *ngIf="conflictResult.hasConflict" class="alert-conflict">
-          <div class="alert-tag-red">CONFLICT</div>
-          Found {{ conflictResult.servers.length }} competing server(s):
-          <div *ngFor="let s of conflictResult.servers" class="conflict-server mt-2">
-            <i class="bi bi-exclamation-triangle-fill"></i> {{ s.ip }}
-            <span *ngIf="s.from !== s.ip" style="color:var(--text-dim)"> (from {{ s.from }})</span>
-          </div>
-        </div>
-        <!-- Safe -->
-        <div *ngIf="!conflictResult.hasConflict && !conflictResult.warning" class="alert-ok">
-          <div class="alert-tag-ok">CLEAR</div>
-          No competing DHCP servers detected.
-        </div>
-        <!-- Method -->
-        <div *ngIf="conflictResult.method && conflictResult.method !== 'none'"
-             class="detect-method mt-2">
-          <i class="bi bi-info-circle"></i> scan via {{ conflictResult.method }}
-        </div>
-      </div>
-
-      <button class="pbtn pbtn-amber mt-auto"
-              (click)="detectConflicts()"
-              [disabled]="detectLoading">
-        <span *ngIf="detectLoading"  class="spin"></span>
-        <i    *ngIf="!detectLoading" class="bi bi-radar"></i>
-        {{ detectLoading ? 'SCANNING…' : 'SCAN NETWORK' }}
-      </button>
-
-    </div>
-  </div>
-
-  <!-- ── Col C: Current Config ──────────────────────────────────────── -->
+  <!-- Active Config -->
   <div class="panel area-info">
     <div class="panel-head">
       <span><i class="bi bi-info-circle panel-head-icon"></i>ACTIVE CONFIG</span>
     </div>
-    <div class="panel-body" *ngIf="config">
-      <div class="kv-row"><span class="kv-key">Server IP</span>    <span class="kv-val">{{ config.serverIp }}</span></div>
-      <div class="kv-row"><span class="kv-key">Subnet Mask</span>  <span class="kv-val">{{ config.subnetMask }}</span></div>
-      <div class="kv-row"><span class="kv-key">Router</span>       <span class="kv-val">{{ config.router }}</span></div>
-      <div class="kv-row"><span class="kv-key">DNS</span>          <span class="kv-val">{{ config.dns.join(', ') }}</span></div>
-      <div class="kv-row"><span class="kv-key">Pool Start</span>   <span class="kv-val">{{ config.poolStart }}</span></div>
-      <div class="kv-row"><span class="kv-key">Pool End</span>     <span class="kv-val">{{ config.poolEnd }}</span></div>
+    <div class="panel-body">
+      <div class="kv-row"><span class="kv-key">Subnets</span>     <span class="kv-val">{{ subnets.length }}</span></div>
+      <div class="kv-row"><span class="kv-key">Active Leases</span><span class="kv-val">{{ assignedNow }}</span></div>
       <div class="kv-row" style="border-bottom:none">
         <span class="kv-key">Lease Time</span>
-        <span class="kv-val">{{ config.leaseTime }}s</span>
+        <span class="kv-val">{{ leaseTime }}s</span>
       </div>
     </div>
   </div>
 
-  <!-- ── Col D–E: Config Editor ─────────────────────────────────────── -->
-  <div class="panel area-config">
-    <div class="panel-head">
-      <span><i class="bi bi-sliders panel-head-icon"></i>EDIT CONFIGURATION</span>
-      <span *ngIf="configSaved" class="saved-flash">✓ SAVED</span>
-    </div>
-    <div class="panel-body">
-      <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
-        <div class="config-form-grid">
-
-          <div class="field">
-            <label class="field-label">Server IP</label>
-            <input formControlName="serverIp" class="field-input" placeholder="192.168.1.1">
-          </div>
-          <div class="field">
-            <label class="field-label">Subnet Mask</label>
-            <input formControlName="subnetMask" class="field-input" placeholder="255.255.255.0">
-          </div>
-          <div class="field">
-            <label class="field-label">Router / Gateway</label>
-            <input formControlName="router" class="field-input" placeholder="192.168.1.1">
-          </div>
-          <div class="field">
-            <label class="field-label">DNS Servers (comma-separated)</label>
-            <input formControlName="dnsText" class="field-input" placeholder="8.8.8.8, 8.8.4.4">
-          </div>
-          <div class="field">
-            <label class="field-label">Pool Start</label>
-            <input formControlName="poolStart" class="field-input" placeholder="192.168.1.100">
-          </div>
-          <div class="field">
-            <label class="field-label">Pool End</label>
-            <input formControlName="poolEnd" class="field-input" placeholder="192.168.1.200">
-          </div>
-
-        </div>
-
-        <div class="field mt-2">
-          <label class="field-label">Lease Time (seconds)</label>
-          <input formControlName="leaseTime" type="number" class="field-input">
-        </div>
-
-        <div class="flex items-center gap-3 mt-4">
-          <button type="submit"
-                  class="pbtn pbtn-amber pbtn-sm"
-                  [disabled]="configForm.invalid || configLoading">
-            <span *ngIf="configLoading"  class="spin spin-sm"></span>
-            <i    *ngIf="!configLoading" class="bi bi-floppy"></i>
-            {{ configLoading ? 'SAVING…' : 'SAVE CONFIG' }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ── Col F–G: Server Logs ───────────────────────────────────────── -->
-  <div class="panel area-logs">
-    <div class="panel-head">
-      <span><i class="bi bi-terminal panel-head-icon"></i>SYSTEM LOG</span>
-      <span class="badge-count">{{ logs.length }}</span>
-    </div>
-    <div class="panel-body" style="padding:10px">
-      <div class="log-panel" #logPanel>
-        <div *ngFor="let entry of logs" class="log-line">
-          <span class="log-ts">{{ formatTime(entry.time) }}</span>
-          <span class="log-msg"
-                [class.incoming]="entry.msg.startsWith('←')"
-                [class.outgoing]="entry.msg.startsWith('→')">{{ entry.msg }}</span>
-        </div>
-        <div *ngIf="!logs.length" class="log-empty">
-          — NO LOG ENTRIES —
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Full width: Active Leases ──────────────────────────────────── -->
+  <!-- Active Leases -->
   <div class="panel area-leases">
     <div class="panel-head">
       <span><i class="bi bi-hdd-network panel-head-icon"></i>ACTIVE LEASES</span>
       <span class="badge-count">{{ leases.length }}</span>
     </div>
-    <!-- Toolbar: filter tabs + search -->
     <div class="leases-toolbar">
       <div class="filter-tabs">
-        <button class="filter-tab" [class.active]="activeTypeFilter === 'ALL'"
-                (click)="activeTypeFilter = 'ALL'">ALL</button>
-        <button class="filter-tab" [class.active]="activeTypeFilter === 'Mobile'"
-                (click)="activeTypeFilter = 'Mobile'">MOBILE</button>
-        <button class="filter-tab" [class.active]="activeTypeFilter === 'Desktop'"
-                (click)="activeTypeFilter = 'Desktop'">DESKTOP</button>
-        <button class="filter-tab" [class.active]="activeTypeFilter === 'Network'"
-                (click)="activeTypeFilter = 'Network'">NETWORK</button>
-        <button class="filter-tab" [class.active]="activeTypeFilter === 'IoT'"
-                (click)="activeTypeFilter = 'IoT'">IOT</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'ALL'"     (click)="activeTypeFilter = 'ALL'">ALL</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'Mobile'"  (click)="activeTypeFilter = 'Mobile'">MOBILE</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'Desktop'" (click)="activeTypeFilter = 'Desktop'">DESKTOP</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'Network'" (click)="activeTypeFilter = 'Network'">NETWORK</button>
+        <button class="filter-tab" [class.active]="activeTypeFilter === 'IoT'"     (click)="activeTypeFilter = 'IoT'">IOT</button>
       </div>
       <input class="field-input lease-search"
              [value]="leaseSearch"
              (input)="leaseSearch = $any($event.target).value"
              placeholder="SEARCH IP / MAC / HOST…">
     </div>
-
     <div style="overflow-x:auto">
       <table class="data-table">
         <thead>
@@ -230,18 +90,14 @@
             <td style="color:var(--text-dim);font-size:0.72rem">{{ formatTime(lease.assignedAt) }}</td>
             <td style="color:var(--text-dim);font-size:0.72rem">{{ formatExpiry(lease.expiry) }}</td>
             <td>
-              <div class="health-bar-track"
-                   [title]="(leaseHealthPct(lease) | number:'1.0-0') + '% remaining'">
+              <div class="health-bar-track" [title]="(leaseHealthPct(lease) | number:'1.0-0') + '% remaining'">
                 <div class="health-bar-fill"
                      [style.width.%]="leaseHealthPct(lease)"
-                     [style.background]="leaseHealthColor(leaseHealthPct(lease))">
-                </div>
+                     [style.background]="leaseHealthColor(leaseHealthPct(lease))"></div>
               </div>
             </td>
             <td>
-              <button class="pbtn pbtn-icon"
-                      (click)="releaseLease(lease.mac)"
-                      title="Release lease">
+              <button class="pbtn pbtn-icon" (click)="releaseLease(lease.ip)" title="Release lease">
                 <i class="bi bi-x-lg"></i>
               </button>
             </td>
