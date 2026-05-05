@@ -1,0 +1,92 @@
+<div class="page-wrap">
+
+  <div class="panel">
+    <div class="panel-head">
+      <span><i class="bi bi-bookmark-star panel-head-icon"></i>HOST RESERVATIONS</span>
+      <button class="pbtn pbtn-sm pbtn-amber" (click)="showForm = !showForm">
+        <i class="bi" [class.bi-plus-lg]="!showForm" [class.bi-x-lg]="showForm"></i>
+        {{ showForm ? 'CANCEL' : 'ADD RESERVATION' }}
+      </button>
+    </div>
+
+    <!-- Subnet selector -->
+    <div class="panel-toolbar" *ngIf="subnets.length">
+      <span class="toolbar-label">SUBNET:</span>
+      <button *ngFor="let s of subnets"
+              class="filter-tab"
+              [class.active]="selectedSubnetId === s.id"
+              (click)="selectSubnet(s.id)">
+        {{ s.subnet }}
+      </button>
+    </div>
+
+    <!-- Add form -->
+    <div class="panel-body" *ngIf="showForm">
+      <div *ngIf="error" class="alert-error mb-3">
+        <span class="err-marker">ERR</span> {{ error }}
+      </div>
+      <form [formGroup]="form" (ngSubmit)="add()">
+        <div class="config-form-grid">
+          <div class="field">
+            <label class="field-label">Subnet</label>
+            <select formControlName="subnetId" class="field-input">
+              <option *ngFor="let s of subnets" [value]="s.id">{{ s.subnet }}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">MAC Address</label>
+            <input formControlName="hwAddress" class="field-input" placeholder="aa:bb:cc:dd:ee:ff">
+          </div>
+          <div class="field">
+            <label class="field-label">Reserved IP</label>
+            <input formControlName="ipAddress" class="field-input" placeholder="192.168.1.50">
+          </div>
+          <div class="field">
+            <label class="field-label">Hostname (optional)</label>
+            <input formControlName="hostname" class="field-input" placeholder="mydevice">
+          </div>
+        </div>
+        <div class="flex gap-3 mt-3">
+          <button type="submit" class="pbtn pbtn-amber pbtn-sm" [disabled]="form.invalid || saving">
+            <span *ngIf="saving" class="spin spin-sm"></span>
+            <i *ngIf="!saving" class="bi bi-floppy"></i>
+            {{ saving ? 'SAVING…' : 'SAVE' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto">
+      <div *ngIf="loading" class="loading-row">LOADING…</div>
+      <table class="data-table" *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>MAC Address</th>
+            <th>Reserved IP</th>
+            <th>Hostname</th>
+            <th>Subnet ID</th>
+            <th style="width:56px"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reservations">
+            <td class="val-mac">{{ r['hw-address'] }}</td>
+            <td class="val-ip">{{ r['ip-address'] }}</td>
+            <td>{{ r.hostname || '—' }}</td>
+            <td>{{ r['subnet-id'] }}</td>
+            <td>
+              <button class="pbtn pbtn-icon" (click)="delete(r)" title="Delete reservation">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!reservations.length" class="empty-row">
+            <td colspan="5"><i class="bi bi-inbox" style="margin-right:8px"></i>NO RESERVATIONS</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

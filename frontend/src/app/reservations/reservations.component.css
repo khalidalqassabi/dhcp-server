@@ -1,0 +1,7 @@
+.page-wrap          { padding: 20px; }
+.panel-toolbar      { display:flex; align-items:center; gap:8px; padding:8px 16px; border-bottom:1px solid var(--border); }
+.toolbar-label      { font-size:0.7rem; color:var(--text-dim); letter-spacing:.06em; }
+.loading-row        { padding:24px; text-align:center; color:var(--text-dim); font-size:0.8rem; }
+.config-form-grid   { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+.alert-error        { background:rgba(232,64,64,0.1); border:1px solid rgba(232,64,64,0.3);
+                      border-radius:4px; padding:8px 12px; font-size:0.82rem; }
