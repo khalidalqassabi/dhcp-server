@@ -156,3 +156,44 @@
 }
 
 .footer-sep { color: var(--border-hi); }
+
+/* A — shake on bad password */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  15%      { transform: translateX(-8px); }
+  30%      { transform: translateX(8px); }
+  45%      { transform: translateX(-6px); }
+  60%      { transform: translateX(6px); }
+  75%      { transform: translateX(-3px); }
+  90%      { transform: translateX(3px); }
+}
+
+.shake {
+  animation: shake 0.55s ease both;
+  border-color: rgba(232,64,64,0.6) !important;
+  box-shadow: 0 0 0 1px rgba(232,64,64,0.25), inset 0 0 24px rgba(232,64,64,0.06);
+}
+
+/* B — caps lock warning */
+.caps-warn {
+  margin-top: 6px;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  color: var(--amber);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* E — lockout bar */
+.lockout-bar {
+  background: rgba(232,64,64,0.08);
+  border: 1px solid rgba(232,64,64,0.3);
+  padding: 8px 14px;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: #ee9090;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

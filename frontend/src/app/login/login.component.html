@@ -13,7 +13,8 @@
       <div class="sys-sub">NETWORK CONTROL INTERFACE · KEA 2.6</div>
     </div>
 
-    <div class="panel auth-panel">
+    <!-- A: shaking class applied on bad password -->
+    <div class="panel auth-panel" [class.shake]="shaking">
       <div class="panel-head">
         <span><i class="bi bi-lock panel-head-icon"></i>AUTHENTICATION REQUIRED</span>
         <span class="auth-status-dot"></span>
@@ -24,27 +25,43 @@
           <span class="err-marker">ERR</span> {{ error }}
         </div>
 
+        <!-- E: lockout countdown -->
+        <div *ngIf="isLockedOut" class="lockout-bar mb-3">
+          <i class="bi bi-shield-lock"></i>
+          LOCKED · {{ lockoutRemaining }}s remaining
+        </div>
+
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="field">
             <label class="field-label">Password</label>
             <div class="field-prompt-wrap">
               <span class="field-prompt">&gt;</span>
-              <input formControlName="password"
+              <!-- C: #pwInput ref for focus/select; B: (keyup) caps detection -->
+              <input #pwInput
+                     formControlName="password"
                      [type]="showPw ? 'text' : 'password'"
                      class="field-input field-prompt-input"
                      placeholder="••••••••"
-                     autocomplete="current-password">
+                     autocomplete="current-password"
+                     (keyup)="onKey($event)"
+                     (keydown)="onKey($event)">
               <button type="button" class="pw-toggle" (click)="showPw = !showPw" tabindex="-1">
                 <i class="bi" [class.bi-eye]="!showPw" [class.bi-eye-slash]="showPw"></i>
               </button>
             </div>
+            <!-- B: caps lock warning -->
+            <div *ngIf="capsLock" class="caps-warn">
+              <i class="bi bi-capslock-fill"></i> CAPS LOCK IS ON
+            </div>
           </div>
 
           <div class="auth-actions mt-4">
-            <button type="submit" class="pbtn pbtn-amber w-full" [disabled]="form.invalid || loading">
+            <button type="submit" class="pbtn pbtn-amber w-full"
+                    [disabled]="form.invalid || loading || isLockedOut">
               <span *ngIf="loading" class="spin spin-sm"></span>
-              <i *ngIf="!loading" class="bi bi-arrow-right-circle"></i>
-              {{ loading ? 'AUTHENTICATING…' : 'AUTHENTICATE' }}
+              <i *ngIf="!loading && !isLockedOut" class="bi bi-arrow-right-circle"></i>
+              <i *ngIf="isLockedOut" class="bi bi-shield-lock"></i>
+              {{ loading ? 'AUTHENTICATING…' : isLockedOut ? 'LOCKED' : 'AUTHENTICATE' }}
             </button>
           </div>
         </form>
