@@ -4,16 +4,24 @@ import { Router }      from '@angular/router';
 import { map, tap }    from 'rxjs/operators';
 import { Observable }  from 'rxjs';
 
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly AUTHED_KEY = 'kea_authed';
-  private readonly TOKEN_KEY  = 'kea_token';
+
+  // Token lives in memory only — never written to any storage
+  private token: string | null = null;
 
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    // If the page was refreshed while a session flag exists but we have no
+    // in-memory token, clear the stale flag and force re-login.
+    if (sessionStorage.getItem(this.AUTHED_KEY) === 'true' && !this.token) {
+      sessionStorage.removeItem(this.AUTHED_KEY);
+    }
+  }
 
   login(password: string): Observable<void> {
     const token = btoa(`kea-api:${password}`);
@@ -23,8 +31,8 @@ export class AuthService {
       { headers: { Authorization: `Basic ${token}` } }
     ).pipe(
       tap(() => {
-        sessionStorage.setItem(this.TOKEN_KEY,  token);
-        sessionStorage.setItem(this.AUTHED_KEY, 'true');
+        this.token = token;                                  // memory only
+        sessionStorage.setItem(this.AUTHED_KEY, 'true');    // UI flag only
         this.startIdleTimer();
       }),
       map(() => void 0)
@@ -32,18 +40,19 @@ export class AuthService {
   }
 
   logout(): void {
+    this.token = null;
     this.stopIdleTimer();
-    sessionStorage.removeItem(this.TOKEN_KEY);
     sessionStorage.removeItem(this.AUTHED_KEY);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
-    return sessionStorage.getItem(this.TOKEN_KEY);
+    return this.token;
   }
 
   isLoggedIn(): boolean {
-    return sessionStorage.getItem(this.AUTHED_KEY) === 'true';
+    // Both the flag AND the in-memory token must be present
+    return this.token !== null && sessionStorage.getItem(this.AUTHED_KEY) === 'true';
   }
 
   resetIdleTimer(): void {
