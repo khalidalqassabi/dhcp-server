@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { switchMap, map, catchError, shareReplay } from 'rxjs/operators';
 import { of }                 from 'rxjs';
 import { KeaService }         from './kea.service';
+import { environment }        from '../../environments/environment';
 
 export interface ServerStatus {
   running: boolean;
@@ -14,7 +15,7 @@ export class ServerService {
   private runningSubject = new BehaviorSubject<boolean>(true);
   readonly running$ = this.runningSubject.asObservable();
 
-  readonly config$: Observable<Record<string, unknown>> = timer(0, 5000).pipe(
+  readonly config$: Observable<Record<string, unknown>> = timer(0, environment.pollIntervalMs).pipe(
     switchMap(() =>
       this.kea.command<{ Dhcp4: Record<string, unknown> }>('config-get').pipe(
         catchError(() => of({ result: 0, text: '', arguments: { Dhcp4: {} } }))
