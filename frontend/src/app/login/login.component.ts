@@ -10,7 +10,6 @@ import { AuthService }   from '../services/auth.service';
 })
 export class LoginComponent {
   form = this.fb.group({
-    username: ['', Validators.required],
     password: ['', Validators.required]
   });
 
@@ -19,8 +18,8 @@ export class LoginComponent {
   showPw  = false;
 
   constructor(
-    private fb:   FormBuilder,
-    private auth: AuthService,
+    private fb:     FormBuilder,
+    private auth:   AuthService,
     private router: Router
   ) {}
 
@@ -28,11 +27,10 @@ export class LoginComponent {
     if (this.form.invalid) return;
     this.loading = true;
     this.error   = '';
-    const { username, password } = this.form.value;
-    this.auth.login(username!, password!).subscribe({
+    this.auth.login(this.form.value.password!).subscribe({
       next:  () => this.router.navigate(['/dashboard']),
       error: (e) => {
-        this.error   = e.error?.error || 'Login failed';
+        this.error   = e.status === 401 ? 'Invalid password' : 'Connection failed — is Kea running?';
         this.loading = false;
       }
     });

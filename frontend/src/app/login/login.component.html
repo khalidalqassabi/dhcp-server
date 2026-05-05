@@ -1,8 +1,6 @@
 <div class="auth-wrap">
-
   <div class="auth-frame">
 
-    <!-- System identifier -->
     <div class="sys-ident">
       <div class="sys-logo">
         <span class="logo-bracket">[</span>
@@ -10,38 +8,21 @@
         <span class="logo-bracket">]</span>
       </div>
       <div class="sys-name">DHCP MANAGEMENT SYSTEM</div>
-      <div class="sys-sub">NETWORK CONTROL INTERFACE · v2.1</div>
+      <div class="sys-sub">NETWORK CONTROL INTERFACE · KEA 2.6</div>
     </div>
 
-    <!-- Auth panel -->
     <div class="panel auth-panel">
       <div class="panel-head">
-        <span>
-          <i class="bi bi-lock panel-head-icon"></i>AUTHENTICATION REQUIRED
-        </span>
+        <span><i class="bi bi-lock panel-head-icon"></i>AUTHENTICATION REQUIRED</span>
         <span class="auth-status-dot"></span>
       </div>
       <div class="panel-body">
 
-        <!-- Error -->
         <div *ngIf="error" class="auth-error mb-3">
           <span class="err-marker">ERR</span> {{ error }}
         </div>
 
         <form [formGroup]="form" (ngSubmit)="submit()">
-
-          <div class="field">
-            <label class="field-label">User_ID</label>
-            <div class="field-prompt-wrap">
-              <span class="field-prompt">&gt;</span>
-              <input formControlName="username"
-                     type="text"
-                     class="field-input field-prompt-input"
-                     placeholder="admin"
-                     autocomplete="username">
-            </div>
-          </div>
-
           <div class="field">
             <label class="field-label">Password</label>
             <div class="field-prompt-wrap">
@@ -51,36 +32,30 @@
                      class="field-input field-prompt-input"
                      placeholder="••••••••"
                      autocomplete="current-password">
-              <button type="button"
-                      class="pw-toggle"
-                      (click)="showPw = !showPw"
-                      tabindex="-1">
+              <button type="button" class="pw-toggle" (click)="showPw = !showPw" tabindex="-1">
                 <i class="bi" [class.bi-eye]="!showPw" [class.bi-eye-slash]="showPw"></i>
               </button>
             </div>
           </div>
 
           <div class="auth-actions mt-4">
-            <button type="submit"
-                    class="pbtn pbtn-amber w-full"
-                    [disabled]="form.invalid || loading">
+            <button type="submit" class="pbtn pbtn-amber w-full" [disabled]="form.invalid || loading">
               <span *ngIf="loading" class="spin spin-sm"></span>
               <i *ngIf="!loading" class="bi bi-arrow-right-circle"></i>
               {{ loading ? 'AUTHENTICATING…' : 'AUTHENTICATE' }}
             </button>
           </div>
-
         </form>
+
       </div>
     </div>
 
-    <!-- Footer -->
     <div class="auth-footer">
       <span>SYS·READY</span>
       <span class="footer-sep">·</span>
       <span>UDP:67</span>
       <span class="footer-sep">·</span>
-      <span>HTTP:3000</span>
+      <span>KEA·CA:8000</span>
     </div>
 
   </div>
