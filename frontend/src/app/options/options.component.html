@@ -1,0 +1,67 @@
+<div class="page-wrap">
+  <div class="panel">
+    <div class="panel-head">
+      <span><i class="bi bi-toggles panel-head-icon"></i>GLOBAL DHCP OPTIONS</span>
+      <button class="pbtn pbtn-sm pbtn-amber" (click)="showForm = !showForm">
+        <i class="bi" [class.bi-plus-lg]="!showForm" [class.bi-x-lg]="showForm"></i>
+        {{ showForm ? 'CANCEL' : 'ADD OPTION' }}
+      </button>
+    </div>
+
+    <div class="panel-body" *ngIf="showForm">
+      <div *ngIf="error" class="alert-error mb-3"><span class="err-marker">ERR</span> {{ error }}</div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="config-form-grid">
+          <div class="field">
+            <label class="field-label">Option Name</label>
+            <select formControlName="name" class="field-input">
+              <option value="">-- select --</option>
+              <option *ngFor="let o of commonOptions" [value]="o.name">{{ o.name }}</option>
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+          <div class="field" *ngIf="nameValue === 'custom'">
+            <label class="field-label">Custom Option Name</label>
+            <input formControlName="customName" class="field-input" placeholder="option-name">
+          </div>
+          <div class="field">
+            <label class="field-label">Value</label>
+            <input formControlName="data" class="field-input"
+                   [placeholder]="getPlaceholder(nameValue)">
+          </div>
+        </div>
+        <div class="flex gap-3 mt-3">
+          <button type="submit" class="pbtn pbtn-amber pbtn-sm" [disabled]="form.invalid || saving">
+            <span *ngIf="saving" class="spin spin-sm"></span>
+            <i *ngIf="!saving" class="bi bi-floppy"></i>
+            {{ saving ? 'SAVING…' : 'SAVE OPTION' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div style="overflow-x:auto">
+      <div *ngIf="loading" class="loading-row">LOADING…</div>
+      <table class="data-table" *ngIf="!loading">
+        <thead>
+          <tr><th>Option Name</th><th>Value</th><th>Code</th><th style="width:56px"></th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let o of options">
+            <td>{{ o.name }}</td>
+            <td style="color:var(--text-bright)">{{ o.data }}</td>
+            <td style="color:var(--text-dim);font-size:0.78rem">{{ o.code ?? '—' }}</td>
+            <td>
+              <button class="pbtn pbtn-icon" (click)="delete(o)" title="Delete option">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!options.length" class="empty-row">
+            <td colspan="4"><i class="bi bi-inbox" style="margin-right:8px"></i>NO GLOBAL OPTIONS SET</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
