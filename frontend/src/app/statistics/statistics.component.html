@@ -1,0 +1,60 @@
+<div class="page-wrap">
+
+  <!-- Global stats -->
+  <div class="panel mb-4">
+    <div class="panel-head">
+      <span><i class="bi bi-bar-chart-line panel-head-icon"></i>GLOBAL STATISTICS</span>
+    </div>
+    <div class="panel-body">
+      <div class="stats-row">
+        <div class="stat-block">
+          <div class="stat-value">{{ pktReceived }}</div>
+          <div class="stat-label">PACKETS RECEIVED</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value v-green">{{ pktSent }}</div>
+          <div class="stat-label">PACKETS SENT</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value" [style.color]="totalDeclined > 0 ? 'var(--red)' : 'var(--text-bright)'">
+            {{ totalDeclined }}
+          </div>
+          <div class="stat-label">DECLINED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-subnet stats -->
+  <div class="panel">
+    <div class="panel-head">
+      <span><i class="bi bi-diagram-3 panel-head-icon"></i>PER-SUBNET UTILISATION</span>
+    </div>
+    <div class="panel-body" *ngIf="subnetStats.length; else noSubnets">
+      <div *ngFor="let s of subnetStats" class="subnet-stat-row">
+        <div class="subnet-info">
+          <span class="subnet-cidr">{{ s.subnet }}</span>
+          <span class="subnet-counts">
+            {{ s.assigned }}/{{ s.total }} assigned · {{ s.available }} available
+            <span *ngIf="s.declined > 0" style="color:var(--red)"> · {{ s.declined }} declined</span>
+          </span>
+        </div>
+        <div class="util-track">
+          <div class="util-fill"
+               [style.width.%]="s.utilPct"
+               [style.background]="utilColor(s.utilPct)">
+          </div>
+        </div>
+        <div class="util-pct" [style.color]="utilColor(s.utilPct)">
+          {{ s.utilPct | number:'1.0-0' }}%
+        </div>
+      </div>
+    </div>
+    <ng-template #noSubnets>
+      <div class="panel-body" style="color:var(--text-dim);font-size:0.82rem">
+        No subnets configured yet — add one in the SUBNETS page.
+      </div>
+    </ng-template>
+  </div>
+
+</div>

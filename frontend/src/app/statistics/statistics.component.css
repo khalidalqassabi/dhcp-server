@@ -1,0 +1,15 @@
+.page-wrap         { padding: 20px; }
+.mb-4              { margin-bottom: 16px; }
+.stats-row         { display:flex; gap:24px; flex-wrap:wrap; }
+.stat-block        { flex:1; min-width:140px; }
+.stat-value        { font-size:2rem; font-weight:700; color:var(--text-bright); font-family:var(--font-mono); }
+.stat-value.v-green { color:var(--green); }
+.stat-label        { font-size:0.68rem; color:var(--text-dim); letter-spacing:.08em; margin-top:4px; }
+.subnet-stat-row   { display:grid; grid-template-columns:1fr 200px 48px; gap:12px;
+                     align-items:center; padding:10px 0; border-bottom:1px solid var(--border); }
+.subnet-stat-row:last-child { border-bottom:none; }
+.subnet-cidr       { font-family:var(--font-mono); color:var(--text-bright); font-size:0.88rem; }
+.subnet-counts     { display:block; font-size:0.72rem; color:var(--text-dim); margin-top:2px; }
+.util-track        { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+.util-fill         { height:100%; border-radius:3px; transition:width .4s; }
+.util-pct          { font-size:0.78rem; font-family:var(--font-mono); text-align:right; }
