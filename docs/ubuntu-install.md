@@ -61,11 +61,11 @@ sudo nginx -t && sudo systemctl reload nginx
 ## 6. Build and deploy the frontend
 
 ```bash
-cd frontend
+cd /home/user01/Downloads/dhcp-server-main/frontend
 npm install
 npm run build
 sudo mkdir -p /var/www/dhcp-admin
-sudo cp -r dist/frontend/* /var/www/dhcp-admin/
+sudo cp -r /home/user01/Downloads/dhcp-server-main/frontend/dist/dhcp-frontend/* /var/www/dhcp-admin/
 ```
 
 ## 7. Start services

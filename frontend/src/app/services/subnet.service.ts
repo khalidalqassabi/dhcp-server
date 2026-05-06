@@ -1,10 +1,7 @@
-import { Injectable }  from '@angular/core';
-import { Observable }  from 'rxjs';
-import { map }         from 'rxjs/operators';
+import { Injectable }           from '@angular/core';
+import { Observable }           from 'rxjs';
+import { map, switchMap }       from 'rxjs/operators';
 import { KeaService, KeaSubnet } from './kea.service';
-
-const REMOTE = { type: 'mysql' };
-const SERVER_TAGS = ['dhcp-admin'];
 
 @Injectable({ providedIn: 'root' })
 export class SubnetService {
@@ -17,18 +14,16 @@ export class SubnetService {
   }
 
   set(subnet: KeaSubnet): Observable<void> {
-    return this.kea.command('remote-subnet4-set', {
-      remote:       REMOTE,
-      'server-tags': SERVER_TAGS,
-      subnets:      [subnet]
-    }).pipe(map(() => void 0));
+    return this.kea.command('subnet4-add', { subnets: [subnet] }).pipe(
+      switchMap(() => this.kea.command('config-write')),
+      map(() => void 0)
+    );
   }
 
   deleteById(id: number): Observable<void> {
-    return this.kea.command('remote-subnet4-del-by-id', {
-      remote:       REMOTE,
-      'server-tags': SERVER_TAGS,
-      subnets:      [{ id }]
-    }).pipe(map(() => void 0));
+    return this.kea.command('subnet4-del', { id }).pipe(
+      switchMap(() => this.kea.command('config-write')),
+      map(() => void 0)
+    );
   }
 }
