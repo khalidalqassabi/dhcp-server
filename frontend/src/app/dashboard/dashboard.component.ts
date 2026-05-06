@@ -26,6 +26,7 @@ const TYPE_COLORS: Record<DeviceType, string> = {
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   running      = false;
+  reachable    = true;
   leases: Lease[] = [];
   stats: KeaStats = {};
   keaConfig: Record<string, unknown> = {};
@@ -46,6 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.subs.push(
       this.server.running$.subscribe(r => this.running = r),
+      this.server.reachable$.subscribe(r => this.reachable = r),
       this.server.config$.subscribe(c => this.keaConfig = c),
       this.statsSvc.stats$.pipe(
         switchMap(() => this.leasesSvc.getAll())

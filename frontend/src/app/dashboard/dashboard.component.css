@@ -1,3 +1,18 @@
+/* ── Offline banner ───────────────────────────────────────── */
+.kea-offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #3a1a1a;
+  border: 1px solid #e84040;
+  color: #e84040;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 10px 18px;
+  margin: 2px 2px 0;
+}
+
 /* ── Dashboard grid ───────────────────────────────────────── */
 .dash-grid {
   display: grid;

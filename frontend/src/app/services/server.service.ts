@@ -12,8 +12,10 @@ export interface ServerStatus {
 
 @Injectable({ providedIn: 'root' })
 export class ServerService {
-  private runningSubject = new BehaviorSubject<boolean>(true);
-  readonly running$ = this.runningSubject.asObservable();
+  private runningSubject   = new BehaviorSubject<boolean>(false);
+  private reachableSubject = new BehaviorSubject<boolean>(true);
+  readonly running$   = this.runningSubject.asObservable();
+  readonly reachable$ = this.reachableSubject.asObservable();
 
   readonly config$: Observable<Record<string, unknown>> = timer(0, environment.pollIntervalMs).pipe(
     switchMap(() =>
@@ -26,11 +28,16 @@ export class ServerService {
   );
 
   constructor(private kea: KeaService) {
-    this.kea.command<{ pid: number; sockets: { ready: number } }>('status-get')
-      .pipe(catchError(() => of(null)))
-      .subscribe(r => {
-        if (r) this.runningSubject.next((r.arguments?.sockets?.ready ?? 0) > 0);
-      });
+    timer(0, environment.pollIntervalMs).pipe(
+      switchMap(() =>
+        this.kea.command<{ pid: number; sockets: { status: string; errors: string[] } }>('status-get').pipe(
+          catchError(() => of(null))
+        )
+      )
+    ).subscribe(r => {
+      this.reachableSubject.next(r != null);
+      this.runningSubject.next(r != null && r.arguments?.sockets?.status === 'ready');
+    });
   }
 
   enable(): Observable<void> {
