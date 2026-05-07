@@ -50,7 +50,7 @@ meson setup build \
   --prefix=/usr \
   --sysconfdir=/etc \
   --localstatedir=/var \
-  -Dwith_mysql=true \
+  -Dmysql=true \
   -Ddocs=disabled
 
 ninja -C build -j$(nproc)
