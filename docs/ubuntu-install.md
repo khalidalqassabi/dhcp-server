@@ -31,9 +31,9 @@ sudo apt install -y \
 Find the latest tarball version at `https://downloads.isc.org/isc/kea/` then replace `X.Y.Z` below:
 
 ```bash
-# Install build dependencies (Kea 3.x uses CMake)
+# Install build dependencies (Kea 3.x uses Meson + Ninja)
 sudo apt install -y \
-  build-essential cmake pkg-config \
+  build-essential meson ninja-build pkg-config \
   libboost-all-dev libssl-dev liblog4cplus-dev \
   libmysqlclient-dev libpq-dev
 
@@ -46,17 +46,15 @@ cd /tmp
 tar xf kea-${KEA_VERSION}.tar.gz
 cd kea-${KEA_VERSION}
 
-# Kea 3.x uses CMake — no ./configure
-mkdir build && cd build
+meson setup build \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  -Dwith_mysql=true \
+  -Ddocs=disabled
 
-cmake .. \
-  -DCMAKE_INSTALL_PREFIX=/usr \
-  -DCMAKE_INSTALL_SYSCONFDIR=/etc \
-  -DWITH_MYSQL=ON \
-  -DENABLE_DOCS=OFF
-
-make -j$(nproc)
-sudo make install
+ninja -C build -j$(nproc)
+sudo ninja -C build install
 sudo ldconfig
 ```
 
