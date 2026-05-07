@@ -6,9 +6,12 @@ Ubuntu 22.04 or 24.04 LTS. Run all commands as a user with `sudo` access.
 
 ## 1. Install packages
 
+### Option A — ISC public repository (preferred)
+
 ```bash
-# Add ISC Kea 2.6 repository
-curl -1sLf 'https://dl.cloudsmith.io/public/isc/kea-2-6/setup.deb.sh' | sudo bash
+# Add ISC Kea 3.0 public repository (free — no subscription required)
+curl -fsSL 'https://dl.cloudsmith.io/public/isc/kea-3-0/setup.deb.sh' -o /tmp/kea-setup.sh
+sudo bash /tmp/kea-setup.sh
 
 sudo apt install -y \
   isc-kea-dhcp4-server \
@@ -18,6 +21,57 @@ sudo apt install -y \
   mysql-server \
   nginx \
   nodejs npm
+```
+
+> `isc-kea-hooks` includes all open-source hooks: `lease_cmds`, `host_cmds`, `subnet_cmds`, `stat_cmds`.
+> Only `cb_cmds` (config backend) and `rbac` require a paid subscription — this project does not use them.
+
+### Option B — Build Kea from source (if ISC repo is unavailable)
+
+Find the latest tarball version at `https://downloads.isc.org/isc/kea/` then replace `X.Y.Z` below:
+
+```bash
+# Install build dependencies
+sudo apt install -y \
+  build-essential autoconf automake libtool pkg-config \
+  libboost-all-dev libssl-dev liblog4cplus-dev \
+  libmysqlclient-dev libpq-dev
+
+# Download — verify version exists first
+KEA_VERSION=3.1.8
+curl -fL -o /tmp/kea-${KEA_VERSION}.tar.gz \
+  "https://downloads.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.tar.gz"
+
+cd /tmp
+tar xf kea-${KEA_VERSION}.tar.gz
+cd kea-${KEA_VERSION}
+
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --with-mysql \
+  --enable-generate-docs=no
+
+make -j$(nproc)
+sudo make install
+sudo ldconfig
+```
+
+After building, hooks install to `/usr/lib/kea/hooks/`. Update the hook paths in `kea/kea-dhcp4.conf` before copying:
+
+```bash
+# Verify hooks are present
+ls /usr/lib/kea/hooks/
+
+# Update hook paths in config
+sed -i 's|/usr/lib/x86_64-linux-gnu/kea/hooks/|/usr/lib/kea/hooks/|g' \
+  kea/kea-dhcp4.conf
+```
+
+Install remaining packages:
+```bash
+sudo apt install -y mysql-server nginx nodejs npm
 ```
 
 ## 2. Set up MySQL
@@ -37,7 +91,7 @@ sudo cp kea/kea-ctrl-agent.conf /etc/kea/kea-ctrl-agent.conf
 ```
 
 Edit both files and replace `REPLACE_WITH_STRONG_PASSWORD`:
-- In `/etc/kea/kea-dhcp4.conf`: set the same MySQL password you used in step 2 (three occurrences — lease-database, hosts-database, config-control).
+- In `/etc/kea/kea-dhcp4.conf`: set the same MySQL password you used in step 2 (two occurrences — lease-database, hosts-database).
 - In `/etc/kea/kea-ctrl-agent.conf`: set a strong admin UI password under `clients[0].password`.
 
 ## 4. Generate TLS certificate

@@ -1,6 +1,6 @@
 import { Injectable }  from '@angular/core';
-import { Observable }  from 'rxjs';
-import { map }         from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { KeaService, KeaLease, Lease, keaLeaseToLease } from './kea.service';
 
 @Injectable({ providedIn: 'root' })
@@ -9,19 +9,22 @@ export class LeaseService {
 
   getAll(): Observable<Lease[]> {
     return this.kea.command<{ leases: KeaLease[] }>('lease4-get-all').pipe(
-      map(r => (r.arguments?.leases ?? []).map(keaLeaseToLease))
+      map(r => (r.arguments?.leases ?? []).map(keaLeaseToLease)),
+      catchError(() => of([]))
     );
   }
 
   delete(ipAddress: string): Observable<void> {
     return this.kea.command('lease4-del', { 'ip-address': ipAddress }).pipe(
-      map(() => void 0)
+      map(() => void 0),
+      catchError(() => of(void 0))
     );
   }
 
   wipe(subnetId: number): Observable<void> {
     return this.kea.command('lease4-wipe', { 'subnet-id': subnetId }).pipe(
-      map(() => void 0)
+      map(() => void 0),
+      catchError(() => of(void 0))
     );
   }
 }
