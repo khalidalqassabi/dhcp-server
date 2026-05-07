@@ -31,13 +31,13 @@ sudo apt install -y \
 Find the latest tarball version at `https://downloads.isc.org/isc/kea/` then replace `X.Y.Z` below:
 
 ```bash
-# Install build dependencies
+# Install build dependencies (Kea 3.x uses CMake)
 sudo apt install -y \
-  build-essential autoconf automake libtool pkg-config \
+  build-essential cmake pkg-config \
   libboost-all-dev libssl-dev liblog4cplus-dev \
   libmysqlclient-dev libpq-dev
 
-# Download — verify version exists first
+# Download — check https://downloads.isc.org/isc/kea/ for latest version
 KEA_VERSION=3.1.8
 curl -fL -o /tmp/kea-${KEA_VERSION}.tar.gz \
   "https://downloads.isc.org/isc/kea/${KEA_VERSION}/kea-${KEA_VERSION}.tar.gz"
@@ -46,12 +46,14 @@ cd /tmp
 tar xf kea-${KEA_VERSION}.tar.gz
 cd kea-${KEA_VERSION}
 
-./configure \
-  --prefix=/usr \
-  --sysconfdir=/etc \
-  --localstatedir=/var \
-  --with-mysql \
-  --enable-generate-docs=no
+# Kea 3.x uses CMake — no ./configure
+mkdir build && cd build
+
+cmake .. \
+  -DCMAKE_INSTALL_PREFIX=/usr \
+  -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+  -DWITH_MYSQL=ON \
+  -DENABLE_DOCS=OFF
 
 make -j$(nproc)
 sudo make install
